@@ -43,7 +43,7 @@ function create () {
 
   // Add a bunch of tanks
   for (var i = 300; i < game.world.bounds.width; i += 300) {
-    units.push(new Unit(game, groups.units, 'tank', 2.0, 5.0, '', 1.0, 100, {x:i, y:statusHeight + gameWindowHeight}, 'player'));
+    units.push(new Unit(game, groups.units, 'tank', 3.0, 5.0, '', 1.0, 100, {x:i, y:statusHeight + gameWindowHeight}, 'player'));
   }
   
   mouse = new Mouse(game, statusHeight, gameWindowHeight);

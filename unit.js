@@ -42,6 +42,11 @@ var Unit = function(game, units, spritename, speed, attackstr, attacksnd, attack
     }
   };
   
+  this.dest = pos.x;
+  this.moveTo = function(x) {
+    this.dest = x;
+  };
+  
   this.update = function() {
     if (!this.isHover && !this.isSelected) {
       this.frameGroup.visible = false;
@@ -55,6 +60,15 @@ var Unit = function(game, units, spritename, speed, attackstr, attacksnd, attack
     this.framedr.x = this.sprite.body.x + this.sprite.body.width;
     this.framedr.y = this.sprite.body.y + this.sprite.body.height;
     this.isHover = false;
+    
+    // Move towards destination at speed
+    if (this.dest > this.sprite.x + speed) {
+      this.sprite.scale.x = 1;
+      this.sprite.x += speed;
+    } else if (this.dest < this.sprite.x - speed) {
+      this.sprite.scale.x = -1;
+      this.sprite.x -= speed;
+    }
   };
   
   this.setSelected(false);

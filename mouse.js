@@ -24,13 +24,45 @@ var Mouse = function(game, statusHeight, gameWindowHeight) {
       this.sprite.body.height = this.sprite.height;
     } else {
       if (this.isDragging) {
+        var isClick = Math.abs(this.dragStartX - this.dragEndX) < 10;
         // Select units under mouse
+        var numSelected = 0;
         for (var i = 0; i < units.total; i++) {
           var unit = units.getAt(i);
           var overlap = (unit.x - unit.body.width / 2 < this.sprite.x + this.sprite.width &&
               unit.x + unit.body.width / 2 > this.sprite.x);
-          unit.unit.setSelected(overlap);
+          if (overlap) {
+            numSelected++;
+          }
         }
+        
+        // If none selected and not dragged too far,
+        // interpret as command
+        if (numSelected == 0 && isClick) {
+          for (var i = 0; i < units.total; i++) {
+            var unit = units.getAt(i);
+            var overlap = (unit.x - unit.body.width / 2 < this.sprite.x + this.sprite.width &&
+                unit.x + unit.body.width / 2 > this.sprite.x);
+            if (unit.unit.isSelected) {
+              unit.unit.moveTo(this.dragEndX);
+            }
+          }
+        } else {
+          var firstSelected = false;
+          for (var i = 0; i < units.total; i++) {
+            var unit = units.getAt(i);
+            var overlap = (unit.x - unit.body.width / 2 < this.sprite.x + this.sprite.width &&
+                unit.x + unit.body.width / 2 > this.sprite.x);
+            if (firstSelected && isClick) {
+              overlap = false;
+            }
+            unit.unit.setSelected(overlap);
+            if (overlap) {
+              firstSelected = true;
+            }
+          }
+        }
+        
         this.sprite.kill();
         this.isDragging = false;
       }
