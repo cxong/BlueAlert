@@ -19,9 +19,8 @@ camera.position.z = 5;
 var scene = new THREE.Scene();
 var gameState;  // start, playing, end
 
-// Keyboard
-var keysPressed = {};
-document.addEventListener("keydown", onDocumentKeyDown, false);
+// Input
+var input = new MouseAndKeyboard(null);
 
 // 
 var Sound = function ( source, volume ) {
@@ -54,11 +53,13 @@ function start() {
 function render() {
   requestAnimationFrame(render);
   var delta = clock.getDelta();
+	
+	input.update(delta);
 
   if ( gameState == "start" ) {
     splash.render( renderer );
     // Check for key presses
-    if ( keysPressed.left || keysPressed.right || keysPressed.up || keysPressed.down ) {
+    if ( input.mouseDragOn ) {
       gameState = "playing";
     }
     return;
@@ -78,27 +79,10 @@ function render() {
     // Wait a while before reloading to prevent reloading immediately
     // because the player is still pressing keys hectically
     var isStillHectic = clock.elapsedTime - dieTime < 0.5;
-    var hasPressed = keysPressed.left || keysPressed.right || keysPressed.up || keysPressed.down;
+    var hasPressed = input.mouseDragOn;
     if ( !isStillHectic && hasPressed ) {
       start();
     }
-  }
-  
-  keysPressed = {};
-}
-
-function onDocumentKeyDown( event ) {
-  var keyCode = event.which;
-  if ( keyCode == 37 ) {  // left
-    keysPressed.left = true;
-  } else if ( keyCode == 39 ) { // right
-    keysPressed.right = true;
-  } else if ( keyCode == 38 ) { // up
-    keysPressed.up = true;
-  } else if ( keyCode == 40 ) { // down
-    keysPressed.down = true;
-  } else if ( keyCode == 70 ) { // F
-    toggleFullScreen();
   }
 }
 
