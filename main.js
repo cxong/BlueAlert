@@ -25,10 +25,14 @@ function preload () {
   game.load.image('selection', 'images/selection.png');
   game.load.image('tank', 'images/tank.png');
   game.load.image('tank_enemy', 'images/tank_enemy.png');
+  game.load.image('marine', 'images/marine.png');
   game.load.image('war_fac', 'images/war_fac.png');
+  game.load.image('barracks', 'images/barracks.png');
   
   game.load.audio('explode', 'audio/explode.mp3');
+  game.load.audio('agony', 'audio/agony.mp3');
   game.load.audio('tank_fire', 'audio/tank_fire.mp3');
+  game.load.audio('m16', 'audio/m16.mp3');
   
   cursors = game.input.keyboard.createCursorKeys();
 }
@@ -55,7 +59,8 @@ function create () {
     units.push(NewTankEnemy(i, 'cpu'));
   }
   // Add buildings
-  buildings.push(new Building(game, groups.buildings, 'war_fac', 'explode', 300, {x:250, y:statusHeight + gameWindowHeight}, 'player', NewTank));
+  buildings.push(new Building(game, groups.buildings, 'barracks', 'explode', 200, {x:250, y:statusHeight + gameWindowHeight}, 'player', NewMarine, 200));
+  buildings.push(new Building(game, groups.buildings, 'war_fac', 'explode', 300, {x:500, y:statusHeight + gameWindowHeight}, 'player', NewTank, 500));
   
   mouse = new Mouse(game, statusHeight, gameWindowHeight);
 }
@@ -76,6 +81,15 @@ function NewTankEnemy(x, team) {
                   2.5,
                   20.0, 'tank_fire', 1.0, 400,
                   120,
+                  {x:x, y:statusHeight + gameWindowHeight},
+                  team);
+}
+function NewMarine(x, team) {
+  return new Unit(game, groups.units,
+                  'marine', 'agony',
+                  2.4,
+                  5.0, 'm16', 2.0, 300,
+                  50,
                   {x:x, y:statusHeight + gameWindowHeight},
                   team);
 }

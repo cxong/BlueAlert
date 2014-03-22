@@ -1,6 +1,6 @@
 var Building = function(game, buildings,
                         spritename, diesnd,
-                        health, pos, team, buildFunc) {
+                        health, pos, team, buildFunc, buildTime) {
   this.sprite = game.add.sprite(pos.x, pos.y, spritename);
   this.sprite.anchor.x = 0.5;
   this.sprite.anchor.y = 1;
@@ -17,12 +17,12 @@ var Building = function(game, buildings,
   this.sprite.health = health;
   
   // Buildings build units
-  this.buildCounter = 300;
+  this.buildCounter = buildTime;
   
   this.update = function(units) {
     this.buildCounter--;
     if (this.buildCounter <= 0) {
-      this.buildCounter = 300;
+      this.buildCounter = buildTime;
       if (buildFunc) {
         var unit = buildFunc(this.sprite.x, this.team);
         units.push(unit);
