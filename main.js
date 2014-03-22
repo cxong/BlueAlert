@@ -32,7 +32,7 @@ function create () {
   bg = game.add.sprite(0, statusHeight, 'bgimage');
   
   music = game.add.audio('bgaudio');
-  music.play('', 0, 0.4, true);
+  music.play('', 0, 0.3, true);
   
   groups = {
     buildings: game.add.group(),

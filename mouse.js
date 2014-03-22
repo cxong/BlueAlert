@@ -39,12 +39,17 @@ var Mouse = function(game, statusHeight, gameWindowHeight) {
         // If none selected and not dragged too far,
         // interpret as command
         if (numSelected == 0 && isClick) {
+          var targetX = this.dragEndX;
+          var delta = 0;
           for (var i = 0; i < units.total; i++) {
             var unit = units.getAt(i);
             var overlap = (unit.x - unit.body.width / 2 < this.sprite.x + this.sprite.width &&
                 unit.x + unit.body.width / 2 > this.sprite.x);
             if (unit.unit.isSelected) {
-              unit.unit.moveTo(this.dragEndX);
+              unit.unit.moveTo(targetX + delta / 2 * ((delta % 2) ? 1 : -1));
+              // Add a bit of random difference so that
+              // multiple units don't clump together
+              delta += 16;
             }
           }
         } else {
