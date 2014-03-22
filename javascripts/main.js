@@ -17,6 +17,7 @@ camera.position.z = 5;
 
 // Set up scene and objects
 var scene = new THREE.Scene();
+var game = new Game(windowWidth, windowHeight, 'images/bg.jpg', 5600, 305);
 var gameState;  // start, playing, end
 
 // Input
@@ -55,6 +56,8 @@ function render() {
   var delta = clock.getDelta();
 	
 	input.update(delta);
+	
+	renderer.clear(true);
 
   if ( gameState == "start" ) {
     splash.render( renderer );
@@ -67,10 +70,9 @@ function render() {
   
   if ( gameState == "playing" ) {
     // update
+		game.update(delta);
+		game.render(renderer);
   }
-
-  renderer.clear(true);
-	renderer.render(scene, camera);
   
   if ( gameState == "end" ) {
     renderer.setViewport(0, 0, windowWidth, windowHeight);
