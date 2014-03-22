@@ -26,6 +26,9 @@ function preload () {
   game.load.image('tank', 'images/tank.png');
   game.load.image('tank_enemy', 'images/tank_enemy.png');
   
+  game.load.audio('explode', 'audio/explode.mp3');
+  game.load.audio('tank_fire', 'audio/tank_fire.mp3');
+  
   cursors = game.input.keyboard.createCursorKeys();
 }
 
@@ -44,11 +47,11 @@ function create () {
 
   // Add a bunch of tanks
   for (var i = 300; i < 1000; i += 300) {
-    units.push(new Unit(game, groups.units, 'tank', 3.0, 5.0, '', 1.0, 400, 100, {x:i, y:statusHeight + gameWindowHeight}, 'player'));
+    units.push(new Unit(game, groups.units, 'tank', 'explode', 3.0, 20.0, 'tank_fire', 1.0, 400, 100, {x:i, y:statusHeight + gameWindowHeight}, 'player'));
   }
   // Add some enemy tanks
   for (var i = 1000; i < 2000; i += 300) {
-    units.push(new Unit(game, groups.units, 'tank_enemy', 2.5, 5.0, '', 1.0, 400, 120, {x:i, y:statusHeight + gameWindowHeight}, 'cpu'));
+    units.push(new Unit(game, groups.units, 'tank_enemy', 'explode', 2.5, 20.0, 'tank_fire', 1.0, 400, 120, {x:i, y:statusHeight + gameWindowHeight}, 'cpu'));
   }
   
   mouse = new Mouse(game, statusHeight, gameWindowHeight);
@@ -65,6 +68,7 @@ function update() {
     // Check for dead units
     if (units[i].sprite.health <= 0) {
       // play death effects
+      units[i].kill(groups.units);
       units.splice(i, 1);
       i--;
     }

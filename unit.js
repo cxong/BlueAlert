@@ -1,4 +1,5 @@
-var Unit = function(game, units, spritename, speed, attackstr, attacksnd, attackspeed, range, health, pos, team) {
+var Unit = function(game, units, spritename, diesnd,
+                    speed, attackstr, attacksnd, attackspeed, range, health, pos, team) {
   this.sprite = game.add.sprite(pos.x, pos.y, spritename);
   this.sprite.anchor.x = 0.5;
   this.sprite.anchor.y = 1;
@@ -11,6 +12,11 @@ var Unit = function(game, units, spritename, speed, attackstr, attacksnd, attack
   if (team !== 'player') {
     this.sprite.scale.x = -1;
   }
+  
+  var sounds = {
+    fire: game.add.audio(attacksnd),
+    die: game.add.audio(diesnd)
+  };
 
   this.sprite.health = health;
   
@@ -59,6 +65,7 @@ var Unit = function(game, units, spritename, speed, attackstr, attacksnd, attack
     this.target = null;
   };
   
+  this.attackCounter = 0;
   this.target = null;
   this.attack = function(target) {
     this.target = target;
@@ -94,20 +101,31 @@ var Unit = function(game, units, spritename, speed, attackstr, attacksnd, attack
           var unit = units[i];
           var overlap = unit.sprite.x - range < this.sprite.x &&
               unit.sprite.x + range > this.sprite.x;
-          if (overlap && unit.team != this.team) {
+          if (overlap && unit.team != this.team && unit.sprite.alive) {
             this.attack(unit);
           }
         }
       } else {
-        var overlap = this.target.sprite.x - range < this.sprite.x &&
-          this.target.sprite.x + range > this.sprite.x;
-        if (!overlap) {
-          this.dest = this.target.sprite.x;
+        if (this.target.sprite.alive) {
+          var overlap = this.target.sprite.x - range < this.sprite.x &&
+            this.target.sprite.x + range > this.sprite.x;
+          if (!overlap) {
+            this.dest = this.target.sprite.x;
+          } else {
+            this.dest = null;
+            // firing
+            if (this.attackCounter <= 0) {
+              this.attackCounter = 100;
+              sounds.fire.play();
+              this.target.sprite.damage(attackstr);
+            }
+          }
         } else {
-          this.dest = null;
+          this.target = null;
         }
       }
     }
+    this.attackCounter--;
 
     // Move towards destination at speed
     if (this.dest != null) {
@@ -121,6 +139,12 @@ var Unit = function(game, units, spritename, speed, attackstr, attacksnd, attack
         this.forceMove = false;
       }
     }
+  };
+  
+  this.kill = function(units) {
+    this.frameGroup.removeAll();
+    units.remove(this.sprite);
+    sounds.die.play();
   };
   
   this.setSelected(false);
