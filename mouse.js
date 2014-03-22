@@ -35,15 +35,15 @@ var Mouse = function(game, statusHeight, gameWindowHeight) {
         this.isDragging = false;
       }
     }
+    
+    // Hover selection
+    for (var i = 0; i < units.total; i++) {
+      var unit = units.getAt(i);
+      var overlap = (unit.x - unit.body.width / 2 < x &&
+          unit.x + unit.body.width / 2 > x);
+      if (overlap) {
+        unit.unit.hover();
+      }
+    }
   };
 };
-
-function deselectAllUnits(units) {
-  for (var i = 0; i < units.total; i++) {
-    units.getAt(i).unit.setSelected(false);
-  }
-}
-
-function selectUnit(selection, unit) {
-  unit.unit.setSeleted(true);
-}

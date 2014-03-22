@@ -10,6 +10,7 @@ var Unit = function(game, units, spritename, speed, attackstr, attacksnd, attack
 
   this.sprite.health = health;
   
+  this.isSelected = false;
   this.frameul = game.add.sprite(0, 0, 'frame');
   this.frameur = game.add.sprite(0, 0, 'frame');
   this.frameur.angle = 90;
@@ -17,24 +18,34 @@ var Unit = function(game, units, spritename, speed, attackstr, attacksnd, attack
   this.framedl.angle = 270;
   this.framedr = game.add.sprite(0, 0, 'frame');
   this.framedr.angle = 180;
+  this.frameGroup = game.add.group();
+  this.frameGroup.add(this.frameul);
+  this.frameGroup.add(this.frameur);
+  this.frameGroup.add(this.framedl);
+  this.frameGroup.add(this.framedr);
   this.setSelected = function(selected) {
-    if (selected === true) {
-      console.log("selected");
+    this.frameGroup.visible = selected;
+    if (selected) {
+      this.frameGroup.alpha = 1;
+    }
+    this.isSelected = selected;
+  };
+  
+  this.isHover = false;
+  this.hover = function() {
+    this.isHover = true;
+    if (!this.isSelected) {
       // Show selection frame
-      this.frameul.revive(1);
-      this.frameur.revive(1);
-      this.framedl.revive(1);
-      this.framedr.revive(1);
-    } else {
-      // Hide selection frame
-      this.frameul.kill();
-      this.frameur.kill();
-      this.framedl.kill();
-      this.framedr.kill();
+      this.frameGroup.visible = true;
+      this.frameGroup.alpha = 0.5;
+      console.log("hover");
     }
   };
   
   this.update = function() {
+    if (!this.isHover && !this.isSelected) {
+      this.frameGroup.visible = false;
+    }
     this.frameul.x = this.sprite.body.x;
     this.frameul.y = this.sprite.body.y;
     this.frameur.x = this.sprite.body.x + this.sprite.body.width;
@@ -43,5 +54,8 @@ var Unit = function(game, units, spritename, speed, attackstr, attacksnd, attack
     this.framedl.y = this.sprite.body.y + this.sprite.body.height;
     this.framedr.x = this.sprite.body.x + this.sprite.body.width;
     this.framedr.y = this.sprite.body.y + this.sprite.body.height;
+    this.isHover = false;
   };
+  
+  this.setSelected(false);
 };
