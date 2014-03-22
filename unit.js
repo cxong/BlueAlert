@@ -48,7 +48,6 @@ var Unit = function(game, units, spritename, diesnd,
       // Show selection frame
       this.frameGroup.visible = true;
       this.frameGroup.alpha = 0.5;
-      console.log("hover");
     }
   };
   
@@ -130,7 +129,10 @@ var Unit = function(game, units, spritename, diesnd,
             // firing
             if (this.attackCounter <= 0) {
               this.attackCounter = 100;
-              sounds.fire.play();
+              var volume = (2000 - Math.abs(this.sprite.x - game.camera.x)) / 2000;
+              if (volume > 0) {
+                sounds.fire.play('', 0, volume);
+              }
               this.target.sprite.damage(attackstr);
             }
           }
@@ -158,7 +160,10 @@ var Unit = function(game, units, spritename, diesnd,
   this.kill = function() {
     this.frameGroup.removeAll();
     units.remove(this.sprite);
-    sounds.die.play();
+    var volume = (2000 - Math.abs(this.sprite.x - game.camera.x)) / 2000;
+    if (volume > 0) {
+      sounds.die.play('', 0, volume);
+    }
   };
   
   this.setSelected(false);

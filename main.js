@@ -33,6 +33,10 @@ function preload () {
   game.load.audio('agony', 'audio/agony.mp3');
   game.load.audio('tank_fire', 'audio/tank_fire.mp3');
   game.load.audio('m16', 'audio/m16.mp3');
+  game.load.audio('training', 'audio/training.mp3');
+  game.load.audio('training_complete', 'audio/training_complete.mp3');
+  game.load.audio('building', 'audio/building.mp3');
+  game.load.audio('unit_ready', 'audio/unit_ready.mp3');
   
   cursors = game.input.keyboard.createCursorKeys();
 }
@@ -48,7 +52,7 @@ function create () {
     units: game.add.group()
   };
  
-  game.world.setBounds(0, 0, 20000, windowSize.y);
+  game.world.setBounds(0, 0, 10000, windowSize.y);
 
   // Add a bunch of tanks
   for (var i = 300; i < 1000; i += 300) {
@@ -59,8 +63,14 @@ function create () {
     units.push(NewTankEnemy(i, 'cpu'));
   }
   // Add buildings
-  buildings.push(new Building(game, groups.buildings, 'barracks', 'explode', 200, {x:250, y:statusHeight + gameWindowHeight}, 'player', NewMarine, 200));
-  buildings.push(new Building(game, groups.buildings, 'war_fac', 'explode', 300, {x:500, y:statusHeight + gameWindowHeight}, 'player', NewTank, 500));
+  buildings.push(new Building(game, groups.buildings,
+                              'barracks', 'explode',
+                              'training', 'training_complete',
+                              200, {x:250, y:statusHeight + gameWindowHeight}, 'player', NewMarine, 200));
+  buildings.push(new Building(game, groups.buildings,
+                              'war_fac', 'explode',
+                              'building', 'unit_ready',
+                              300, {x:500, y:statusHeight + gameWindowHeight}, 'player', NewTank, 500));
   
   mouse = new Mouse(game, statusHeight, gameWindowHeight);
 }
@@ -100,6 +110,11 @@ function update() {
   // Select unit on click
   mouse.update(groups.units);
   
+  // Auto build
+  for (var i = 0; i < buildings.length; i++) {
+    buildings[i].build();
+  }
+  
   for (var i = 0; i < units.length; i++) {
     units[i].update(units, buildings);
     // Check for dead units
@@ -129,5 +144,5 @@ function update() {
   }
 
   // Parallax
-  bg.x = game.camera.x * 0.85;
+  bg.x = game.camera.x * 0.7;
 }
