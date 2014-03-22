@@ -21,6 +21,7 @@ function preload () {
   
   game.load.audio('bgaudio', 'audio/bg.mp3');
   
+  game.load.image('frame', 'images/frame.png');
   game.load.image('selection', 'images/selection.png');
   game.load.image('tank', 'images/tank.png');
   
@@ -42,20 +43,21 @@ function create () {
 
   // Add a bunch of tanks
   for (var i = 300; i < game.world.bounds.width; i += 300) {
-    units.push(new Unit(game, 'tank', 2.0, 5.0, '', 1.0, 100, {x:i, y:statusHeight + gameWindowHeight}, 'player'));
+    units.push(new Unit(game, groups.units, 'tank', 2.0, 5.0, '', 1.0, 100, {x:i, y:statusHeight + gameWindowHeight}, 'player'));
   }
   
-  mouse = new Mouse(game);
+  mouse = new Mouse(game, statusHeight, gameWindowHeight);
 }
 
 var cameraSpeed = 40;
 function update() {
   
   // Select unit on click
-  mouse.update();
+  mouse.update(groups.units);
   
-  // Check for dead units
   for (var i = 0; i < units.length; i++) {
+    units[i].update();
+    // Check for dead units
     if (units[i].sprite.health <= 0) {
       // play death effects
       units.splice(i, 1);

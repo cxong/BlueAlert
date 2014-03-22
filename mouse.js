@@ -1,28 +1,49 @@
-var Mouse = function(game) {
+var Mouse = function(game, statusHeight, gameWindowHeight) {
   this.sprite = game.add.tileSprite(0, 0, 1, 1, 'selection');
   this.sprite.kill();
   this.isDragging = false;
-  this.dragStart = null;
-  this.dragEnd = null;
-  this.update = function() {
-    if (game.input.mousePointer.isDown) {
-      this.dragEnd = {x:game.input.mousePointer.worldX, y:game.input.mousePointer.worldY};
+  this.dragStartX = null;
+  this.dragEndX = null;
+  this.update = function(units) {
+    var x = game.input.mousePointer.worldX;
+    var y = game.input.mousePointer.worldY;
+    if (game.input.mousePointer.isDown &&
+        (this.isDragging || (y > statusHeight && y < statusHeight + gameWindowHeight))) {
+      this.dragEndX = x;
       // Set start of drag location
       if (!this.isDragging) {
-        console.log('start dragging');
-        this.dragStart = this.dragEnd;
+        this.dragStartX = this.dragEndX;
+        this.sprite.revive(1);
       }
       this.isDragging = true;
-      this.sprite.x = Math.min(this.dragStart.x, this.dragEnd.x);
-      this.sprite.y = Math.min(this.dragStart.y, this.dragEnd.y);
-      this.sprite.width = Math.abs(this.dragStart.x - this.dragEnd.x);
-      this.sprite.height = Math.abs(this.dragStart.y - this.dragEnd.y);
-      this.sprite.revive(1);
-      console.log('drag ' + this.sprite.x + '/' + this.sprite.y + ' + ' + this.sprite.width + '/' + this.sprite.height);
+      this.sprite.x = Math.min(this.dragStartX, this.dragEndX);
+      this.sprite.y = statusHeight;
+      this.sprite.width = Math.abs(this.dragStartX - this.dragEndX);
+      this.sprite.body.width = this.sprite.width;
+      this.sprite.height = gameWindowHeight;
+      this.sprite.body.height = this.sprite.height;
     } else {
-      console.log('stop dragging');
-      this.sprite.kill();
-      this.isDragging = false;
+      if (this.isDragging) {
+        // Select units under mouse
+        for (var i = 0; i < units.total; i++) {
+          var unit = units.getAt(i);
+          var overlap = (unit.x - unit.body.width / 2 < this.sprite.x + this.sprite.width &&
+              unit.x + unit.body.width / 2 > this.sprite.x);
+          unit.unit.setSelected(overlap);
+        }
+        this.sprite.kill();
+        this.isDragging = false;
+      }
     }
   };
 };
+
+function deselectAllUnits(units) {
+  for (var i = 0; i < units.total; i++) {
+    units.getAt(i).unit.setSelected(false);
+  }
+}
+
+function selectUnit(selection, unit) {
+  unit.unit.setSeleted(true);
+}
