@@ -72,7 +72,7 @@ var Unit = function(game, units, spritename, diesnd,
     this.dest = null;
   }
   
-  this.update = function(units) {
+  this.update = function(units, buildings) {
     if (!this.isHover && !this.isSelected) {
       this.frameGroup.visible = false;
     }
@@ -97,12 +97,26 @@ var Unit = function(game, units, spritename, diesnd,
     // Stop and attack
     if (!this.forceMove) {
       if (this.target == null) {
+        // Find a unit to attack
         for (var i = 0; i < units.length; i++) {
           var unit = units[i];
           var overlap = unit.sprite.x - range < this.sprite.x &&
               unit.sprite.x + range > this.sprite.x;
           if (overlap && unit.team != this.team && unit.sprite.alive) {
             this.attack(unit);
+            break;
+          }
+        }
+        if (this.target == null) {
+          // attack buildings
+          for (var i = 0; i < buildings.length; i++) {
+            var building = buildings[i];
+            var overlap = building.sprite.x - range < this.sprite.x &&
+              building.sprite.x + range > this.sprite.x;
+            if (overlap && building.team != this.team && building.sprite.alive){
+              this.attack(building);
+              break;
+            }
           }
         }
       } else {
@@ -141,7 +155,7 @@ var Unit = function(game, units, spritename, diesnd,
     }
   };
   
-  this.kill = function(units) {
+  this.kill = function() {
     this.frameGroup.removeAll();
     units.remove(this.sprite);
     sounds.die.play();

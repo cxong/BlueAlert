@@ -2,8 +2,8 @@ var windowSize = { x: 1152, y: 480 };
 var game = new Phaser.Game(windowSize.x, windowSize.y, Phaser.AUTO, '', { preload: preload, create: create, update: update });
 var mouse;
 var bg;
-var player;
 var units = [];
+var buildings = [];
 var cursors;
 
 // Layout: statusbar, game window, build bars
@@ -25,6 +25,7 @@ function preload () {
   game.load.image('selection', 'images/selection.png');
   game.load.image('tank', 'images/tank.png');
   game.load.image('tank_enemy', 'images/tank_enemy.png');
+  game.load.image('war_fac', 'images/war_fac.png');
   
   game.load.audio('explode', 'audio/explode.mp3');
   game.load.audio('tank_fire', 'audio/tank_fire.mp3');
@@ -47,14 +48,36 @@ function create () {
 
   // Add a bunch of tanks
   for (var i = 300; i < 1000; i += 300) {
-    units.push(new Unit(game, groups.units, 'tank', 'explode', 3.0, 20.0, 'tank_fire', 1.0, 400, 100, {x:i, y:statusHeight + gameWindowHeight}, 'player'));
+    units.push(NewTank(i, 'player'));
   }
   // Add some enemy tanks
   for (var i = 1000; i < 2000; i += 300) {
-    units.push(new Unit(game, groups.units, 'tank_enemy', 'explode', 2.5, 20.0, 'tank_fire', 1.0, 400, 120, {x:i, y:statusHeight + gameWindowHeight}, 'cpu'));
+    units.push(NewTankEnemy(i, 'cpu'));
   }
+  // Add buildings
+  buildings.push(new Building(game, groups.buildings, 'war_fac', 'explode', 300, {x:250, y:statusHeight + gameWindowHeight}, 'player', NewTank));
   
   mouse = new Mouse(game, statusHeight, gameWindowHeight);
+}
+
+// Unit factory functions
+function NewTank(x, team) {
+  return new Unit(game, groups.units,
+                  'tank', 'explode',
+                  3.0,
+                  20.0, 'tank_fire', 1.0, 400,
+                  100,
+                  {x:x, y:statusHeight + gameWindowHeight},
+                  team);
+}
+function NewTankEnemy(x, team) {
+  return new Unit(game, groups.units,
+                  'tank_enemy', 'explode',
+                  2.5,
+                  20.0, 'tank_fire', 1.0, 400,
+                  120,
+                  {x:x, y:statusHeight + gameWindowHeight},
+                  team);
 }
 
 var cameraSpeed = 40;
@@ -64,12 +87,22 @@ function update() {
   mouse.update(groups.units);
   
   for (var i = 0; i < units.length; i++) {
-    units[i].update(units);
+    units[i].update(units, buildings);
     // Check for dead units
     if (units[i].sprite.health <= 0) {
       // play death effects
       units[i].kill(groups.units);
       units.splice(i, 1);
+      i--;
+    }
+  }
+  for (var i = 0; i < buildings.length; i++) {
+    buildings[i].update(units);
+    // Check for dead buildings
+    if (buildings[i].sprite.health <= 0) {
+      // play death effects
+      buildings[i].kill(groups.buildings);
+      buildings.splice(i, 1);
       i--;
     }
   }
