@@ -2,7 +2,7 @@ var windowSize = { x: 1152, y: 480 };
 var game = new Phaser.Game(windowSize.x, windowSize.y, Phaser.AUTO, '', { preload: preload, create: create, update: update });
 var bg;
 var player;
-var buildings;
+var units = [];
 var cursors;
 
 // Layout: statusbar, game window, build bars
@@ -20,6 +20,8 @@ function preload () {
   
   game.load.audio('bgaudio', ['audio/bg.ogg']);
   
+  game.load.image('tank', 'images/tank.png');
+  
   cursors = game.input.keyboard.createCursorKeys();
 }
 
@@ -31,18 +33,28 @@ function create () {
   
   groups = {
     buildings: game.add.group(),
-    floors: game.add.group(),
-    rooms: game.add.group(),
-    ledges: game.add.group(),
-    glasses: game.add.group(),
-    bullets: game.add.group()
+    units: game.add.group()
   };
  
   game.world.setBounds(0, 0, 20000, windowSize.y);
+  
+  // Add a bunch of tanks
+  for (var i = 300; i < game.world.bounds.width; i += 300) {
+    units.push(new Unit(game, 'tank', 2.0, 5.0, '', 1.0, 100, {x:i, y:statusHeight + gameWindowHeight}));
+  }
 }
 
-var cameraSpeed = 100;
+var cameraSpeed = 40;
 function update() {
+  
+  // Check for dead units
+  for (var i = 0; i < units.length; i++) {
+    if (units[i].sprite.health <= 0) {
+      // play death effects
+      units.splice(i, 1);
+      i--;
+    }
+  }
   
   // Move camera
   if (cursors.right.isDown) {
