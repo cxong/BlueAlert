@@ -1,4 +1,4 @@
-var Unit = function(game, units, spritename, speed, attackstr, attacksnd, attackspeed, health, pos, team) {
+var Unit = function(game, units, spritename, speed, attackstr, attacksnd, attackspeed, range, health, pos, team) {
   this.sprite = game.add.sprite(pos.x, pos.y, spritename);
   this.sprite.anchor.x = 0.5;
   this.sprite.anchor.y = 1;
@@ -7,6 +7,10 @@ var Unit = function(game, units, spritename, speed, attackstr, attacksnd, attack
   units.add(this.sprite);
   
   this.team = team;
+  // Flip around if not player's units
+  if (team !== 'player') {
+    this.sprite.scale.x = -1;
+  }
 
   this.sprite.health = health;
   
@@ -42,12 +46,26 @@ var Unit = function(game, units, spritename, speed, attackstr, attacksnd, attack
     }
   };
   
+  this.forceMove = false;
+  
   this.dest = pos.x;
   this.moveTo = function(x) {
     this.dest = x;
+    if (this.target) {
+      this.forceMove = true;
+    } else {
+      this.forceMove = false;
+    }
+    this.target = null;
   };
   
-  this.update = function() {
+  this.target = null;
+  this.attack = function(target) {
+    this.target = target;
+    this.dest = null;
+  }
+  
+  this.update = function(units) {
     if (!this.isHover && !this.isSelected) {
       this.frameGroup.visible = false;
     }
@@ -61,13 +79,47 @@ var Unit = function(game, units, spritename, speed, attackstr, attacksnd, attack
     this.framedr.y = this.sprite.body.y + this.sprite.body.height;
     this.isHover = false;
     
+    if (this.team === 'player') {
+      // follow player orders
+    } else {
+      // Basic AI
+      // Move towards player's end, attack along the way
+      this.dest = 0;
+    }
+    
+    // Stop and attack
+    if (!this.forceMove) {
+      if (this.target == null) {
+        for (var i = 0; i < units.length; i++) {
+          var unit = units[i];
+          var overlap = unit.sprite.x - range < this.sprite.x &&
+              unit.sprite.x + range > this.sprite.x;
+          if (overlap && unit.team != this.team) {
+            this.attack(unit);
+          }
+        }
+      } else {
+        var overlap = this.target.sprite.x - range < this.sprite.x &&
+          this.target.sprite.x + range > this.sprite.x;
+        if (!overlap) {
+          this.dest = this.target.sprite.x;
+        } else {
+          this.dest = null;
+        }
+      }
+    }
+
     // Move towards destination at speed
-    if (this.dest > this.sprite.x + speed) {
-      this.sprite.scale.x = 1;
-      this.sprite.x += speed;
-    } else if (this.dest < this.sprite.x - speed) {
-      this.sprite.scale.x = -1;
-      this.sprite.x -= speed;
+    if (this.dest != null) {
+      if (this.dest > this.sprite.x + speed) {
+        this.sprite.scale.x = 1;
+        this.sprite.x += speed;
+      } else if (this.dest < this.sprite.x - speed) {
+        this.sprite.scale.x = -1;
+        this.sprite.x -= speed;
+      } else {
+        this.forceMove = false;
+      }
     }
   };
   
