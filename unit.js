@@ -79,6 +79,7 @@ var Unit = function(game, units, spritename,
     this.dest = null;
   }
   
+  this.ore = 0;
   this.update = function(units, buildings) {
     if (!this.isHover && !this.isSelected) {
       this.frameGroup.visible = false;
@@ -102,8 +103,37 @@ var Unit = function(game, units, spritename,
       this.dest = 0;
     }
     
+    // Special AI for harvesters:
+    // Move towards opposite end and look for ore if not full
+    // Return if full
+    if (attackstr == 0) {
+      if (this.ore >= 1000 || this.team !== 'player') {
+        this.dest = 0;
+      } else {
+        this.dest = game.world.bounds.width;
+      }
+      
+      // Check for ore
+      if (this.ore < 1000) {
+        //code
+      } else {
+        // Check for refinery
+        for (var i = 0; i < buildings.length; i++) {
+          var building = buildings[i];
+          var overlap = building.sprite.x - 10 < this.sprite.x &&
+            building.sprite.x + 10 > this.sprite.x;
+          if (overlap && building.team == this.team && building.sprite.alive &&
+              building.isRefinery){
+            this.ore = 0;
+            // TODO: add credits
+            break;
+          }
+        }
+      }
+    }
+    
     // Stop and attack
-    if (!this.forceMove) {
+    if (!this.forceMove && attackstr > 0) {
       if (this.target == null) {
         // Find a unit to attack
         for (var i = 0; i < units.length; i++) {

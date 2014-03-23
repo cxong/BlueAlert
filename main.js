@@ -31,10 +31,14 @@ function preload () {
   game.load.image('tank_enemy', 'images/tank_enemy.png');
   game.load.image('marine', 'images/marine.png');
   game.load.image('marine_enemy', 'images/marine_enemy.png');
+  game.load.image('truck', 'images/truck.png');
+  game.load.image('truck_enemy', 'images/truck_enemy.png');
   game.load.image('war_fac', 'images/war_fac.png');
   game.load.image('war_fac_enemy', 'images/war_fac_enemy.png');
   game.load.image('barracks', 'images/barracks.png');
   game.load.image('barracks_enemy', 'images/barracks_enemy.png');
+  game.load.image('refinery', 'images/refinery.png');
+  game.load.image('refinery_enemy', 'images/refinery_enemy.png');
   
   game.load.audio('explode', 'audio/explode.mp3');
   game.load.audio('agony', 'audio/agony.mp3');
@@ -62,19 +66,21 @@ function create () {
   game.world.setBounds(0, 0, 5000, windowSize.y);
 
   // Add a bunch of tanks
-  for (var i = 300; i < 1000; i += 300) {
+  for (var i = 600; i < 1000; i += 100) {
     units.push(NewTank(i, 'player'));
   }
   // Add some enemy tanks
-  for (var i = 1000; i < 2000; i += 300) {
+  for (var i = 1500; i < 2000; i += 150) {
     units.push(NewTankEnemy(i, 'cpu'));
   }
   // Add buildings
   buildings.push(NewBarracks(250, 'player', NewMarine));
-  buildings.push(NewFactory(500, 'player', NewTank));
+  buildings.push(NewFactory(750, 'player', NewTank));
+  buildings.push(NewRefinery(1250, 'player', NewTruck));
   
-  buildings.push(NewBarracks(game.world.bounds.width - 1000, 'cpu', NewMarineEnemy));
+  buildings.push(NewBarracks(game.world.bounds.width - 250, 'cpu', NewMarineEnemy));
   buildings.push(NewFactory(game.world.bounds.width - 750, 'cpu', NewTankEnemy));
+  buildings.push(NewRefinery(game.world.bounds.width - 1250, 'cpu', NewTruck));
   
   mouse = new Mouse(game, statusHeight, gameWindowHeight);
 }
@@ -93,6 +99,15 @@ function NewFactory(x, team, unitFunc) {
                       'explode',
                       'building', 'unit_ready',
                       300, {x:x, y:statusHeight + gameWindowHeight}, team, unitFunc, 300);
+}
+function NewRefinery(x, team, unitFunc) {
+  var b = new Building(game, groups.buildings,
+                       'refinery' + (team === 'player' ? '' : '_enemy'),
+                       'explode',
+                       'building', 'unit_ready',
+                       300, {x:x, y:statusHeight + gameWindowHeight}, team, unitFunc, 1000);
+  b.isRefinery = true;
+  return b;
 }
 
 // Unit factory functions
@@ -137,6 +152,17 @@ function NewMarineEnemy(x, team) {
                   2.0,
                   5.0, 'm16', 2.0, 300,
                   60,
+                  {x:x, y:statusHeight + gameWindowHeight},
+                  team);
+}
+function NewTruck(x, team) {
+  return new Unit(game, groups.units,
+                  'truck'  + (team === 'player' ? '' : '_enemy'),
+                  'bullet', 5, 20, -40,
+                  'explode',
+                  1.5,
+                  0, 'm16', 2.0, 300,
+                  200,
                   {x:x, y:statusHeight + gameWindowHeight},
                   team);
 }

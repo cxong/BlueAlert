@@ -8,10 +8,12 @@ var Building = function(game, buildings,
   buildings.add(this.sprite);
   
   this.team = team;
-  this.dest = 10000000;
+  this.dest = game.world.bounds.width;
   if (team !== 'player') {
     this.dest = 0;
   }
+  
+  this.isRefinery = false;
   
   var sounds = {
     die: game.add.audio(diesnd),
