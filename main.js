@@ -24,7 +24,9 @@ function preload () {
   game.load.image('frame', 'images/frame.png');
   game.load.image('selection', 'images/selection.png');
   game.load.image('health', 'images/health.png');
+  game.load.image('mana', 'images/mana.png');
   game.load.image('health_back', 'images/health_back.png');
+  game.load.image('ore', 'images/ore.png');
   game.load.image('sabot', 'images/sabot.png');
   game.load.image('bullet', 'images/bullet.png');
   game.load.image('tank', 'images/tank.png');
@@ -60,19 +62,20 @@ function create () {
   
   groups = {
     buildings: game.add.group(),
-    units: game.add.group()
+    ore: game.add.group(),
+    units: game.add.group(),
   };
  
-  game.world.setBounds(0, 0, 5000, windowSize.y);
+  game.world.setBounds(0, 0, 10000, windowSize.y);
 
   // Add a bunch of tanks
-  for (var i = 600; i < 1000; i += 100) {
+  /*for (var i = 1000; i < 1500; i += 150) {
     units.push(NewTank(i, 'player'));
   }
   // Add some enemy tanks
   for (var i = 1500; i < 2000; i += 150) {
     units.push(NewTankEnemy(i, 'cpu'));
-  }
+  }*/
   // Add buildings
   buildings.push(NewBarracks(250, 'player', NewMarine));
   buildings.push(NewFactory(750, 'player', NewTank));
@@ -81,6 +84,17 @@ function create () {
   buildings.push(NewBarracks(game.world.bounds.width - 250, 'cpu', NewMarineEnemy));
   buildings.push(NewFactory(game.world.bounds.width - 750, 'cpu', NewTankEnemy));
   buildings.push(NewRefinery(game.world.bounds.width - 1250, 'cpu', NewTruck));
+  
+  // Add ore patches
+  for (var i = 2000; i < game.world.bounds.width - 2000; i += Math.random(2000) + 500) {
+    for (var j = 0; j < Math.random(800) + 200; j += oreWidth) {
+      ore = groups.ore.create(i + j, statusHeight + gameWindowHeight, 'ore');
+      ore.anchor.x = 0.5;
+      ore.anchor.y = 1;
+      ore.health = Math.random(500) + 300;
+      oreWidth = ore.width;
+    }
+  }
   
   mouse = new Mouse(game, statusHeight, gameWindowHeight);
 }
@@ -179,7 +193,7 @@ function update() {
   }
   
   for (var i = 0; i < units.length; i++) {
-    units[i].update(units, buildings);
+    units[i].update(units, buildings, groups.ore);
     // Check for dead units
     if (units[i].sprite.health <= 0) {
       // play death effects

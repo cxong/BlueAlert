@@ -27,6 +27,9 @@ var Unit = function(game, units, spritename,
 
   this.sprite.health = health;
   this.healthbar = new Healthbar(game);
+  if (attackstr == 0) {
+    this.manabar = new Manabar(game);
+  }
   
   this.isSelected = false;
   this.frameul = game.add.sprite(0, 0, 'frame');
@@ -75,16 +78,22 @@ var Unit = function(game, units, spritename,
   this.attackCounter = 0;
   this.target = null;
   this.attack = function(target) {
+    if (attackstr == 0) {
+      return;
+    }
     this.target = target;
     this.dest = null;
   }
   
   this.ore = 0;
-  this.update = function(units, buildings) {
+  this.update = function(units, buildings, ores) {
     if (!this.isHover && !this.isSelected) {
       this.frameGroup.visible = false;
     }
     this.healthbar.update(this.sprite, this.sprite.health / health);
+    if (attackstr == 0) {
+      this.manabar.update(this.sprite, this.ore / 1000);
+    }
     this.frameul.x = this.sprite.body.x;
     this.frameul.y = this.sprite.body.y;
     this.frameur.x = this.sprite.body.x + this.sprite.body.width;
@@ -107,15 +116,44 @@ var Unit = function(game, units, spritename,
     // Move towards opposite end and look for ore if not full
     // Return if full
     if (attackstr == 0) {
-      if (this.ore >= 1000 || this.team !== 'player') {
-        this.dest = 0;
+      if (this.ore >= 1000) {
+        if (this.team !== 'player') {
+          this.dest = 0;
+        } else {
+          this.dest = game.world.bounds.width;
+        }
       } else {
-        this.dest = game.world.bounds.width;
+        if (this.team !== 'player') {
+          this.dest = game.world.bounds.width;
+        } else {
+          this.dest = 0;
+        }
       }
       
       // Check for ore
       if (this.ore < 1000) {
-        //code
+        if (this.target == null || !this.target.alive) {
+          var closestOre = -1;
+          for (var i = 0; i < ores.length; i++) {
+            var ore = ores.getAt(i);
+            var dist = Math.abs(ore.x - this.sprite.x);
+            if ((closestOre === -1 || dist < closestOre) &&
+                ore.alive) {
+              closestOre = dist;
+              this.target = ore;
+              this.dest = ore.x;
+            }
+          }
+        }
+        if (this.target && this.target.alive) {
+          this.dest = this.target.x;
+          var overlap = this.target.x - 10 < this.sprite.x &&
+            this.target.x + 10 > this.sprite.x;
+          if (overlap) {
+            this.target.damage(1);
+            this.ore++;
+          }
+        }
       } else {
         // Check for refinery
         for (var i = 0; i < buildings.length; i++) {
@@ -138,8 +176,8 @@ var Unit = function(game, units, spritename,
         // Find a unit to attack
         for (var i = 0; i < units.length; i++) {
           var unit = units[i];
-          var overlap = unit.sprite.x - range < this.sprite.x &&
-              unit.sprite.x + range > this.sprite.x;
+          var overlap = unit.sprite.x - range * 1.3 < this.sprite.x &&
+              unit.sprite.x + range * 1.3 > this.sprite.x;
           if (overlap && unit.team != this.team && unit.sprite.alive) {
             this.attack(unit);
             break;
