@@ -26,8 +26,11 @@ function preload () {
   game.load.image('tank', 'images/tank.png');
   game.load.image('tank_enemy', 'images/tank_enemy.png');
   game.load.image('marine', 'images/marine.png');
+  game.load.image('marine_enemy', 'images/marine_enemy.png');
   game.load.image('war_fac', 'images/war_fac.png');
+  game.load.image('war_fac_enemy', 'images/war_fac_enemy.png');
   game.load.image('barracks', 'images/barracks.png');
+  game.load.image('barracks_enemy', 'images/barracks_enemy.png');
   
   game.load.audio('explode', 'audio/explode.mp3');
   game.load.audio('agony', 'audio/agony.mp3');
@@ -63,16 +66,29 @@ function create () {
     units.push(NewTankEnemy(i, 'cpu'));
   }
   // Add buildings
-  buildings.push(new Building(game, groups.buildings,
-                              'barracks', 'explode',
-                              'training', 'training_complete',
-                              200, {x:250, y:statusHeight + gameWindowHeight}, 'player', NewMarine, 200));
-  buildings.push(new Building(game, groups.buildings,
-                              'war_fac', 'explode',
-                              'building', 'unit_ready',
-                              300, {x:500, y:statusHeight + gameWindowHeight}, 'player', NewTank, 500));
+  buildings.push(NewBarracks(250, 'player', NewMarine));
+  buildings.push(NewFactory(500, 'player', NewTank));
+  
+  buildings.push(NewBarracks(game.world.bounds.width - 1000, 'cpu', NewMarineEnemy));
+  buildings.push(NewFactory(game.world.bounds.width - 750, 'cpu', NewTankEnemy));
   
   mouse = new Mouse(game, statusHeight, gameWindowHeight);
+}
+
+// Building factory functions
+function NewBarracks(x, team, unitFunc) {
+  return new Building(game, groups.buildings,
+                      'barracks' + (team === 'player' ? '' : '_enemy'),
+                      'explode',
+                      'training', 'training_complete',
+                      200, {x:x, y:statusHeight + gameWindowHeight}, team, unitFunc, 200);
+}
+function NewFactory(x, team, unitFunc) {
+  return new Building(game, groups.buildings,
+                      'war_fac' + (team === 'player' ? '' : '_enemy'),
+                      'explode',
+                      'building', 'unit_ready',
+                      300, {x:x, y:statusHeight + gameWindowHeight}, team, unitFunc, 300);
 }
 
 // Unit factory functions
@@ -100,6 +116,15 @@ function NewMarine(x, team) {
                   2.4,
                   5.0, 'm16', 2.0, 300,
                   50,
+                  {x:x, y:statusHeight + gameWindowHeight},
+                  team);
+}
+function NewMarineEnemy(x, team) {
+  return new Unit(game, groups.units,
+                  'marine_enemy', 'agony',
+                  2.0,
+                  5.0, 'm16', 2.0, 300,
+                  60,
                   {x:x, y:statusHeight + gameWindowHeight},
                   team);
 }

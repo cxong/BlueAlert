@@ -26,7 +26,9 @@ var Building = function(game, buildings,
   this.isBuilding = false;
   this.build = function() {
     if (!this.isBuilding) {
-      sounds.build.play();
+      if (this.team === 'player') {
+        sounds.build.play();
+      }
     }
     this.isBuilding = true;
   }
@@ -39,7 +41,9 @@ var Building = function(game, buildings,
           var unit = buildFunc(this.sprite.x, this.team);
           units.push(unit);
           unit.moveTo(this.dest);
-          sounds.complete.play();
+          if (this.team === 'player') {
+            sounds.complete.play();
+          }
           this.isBuilding = false;
         }
       }
