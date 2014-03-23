@@ -32,16 +32,19 @@ var Building = function(game, buildings,
   this.buildCounter = buildTime;
   this.isBuilding = false;
   this.canBuild = function(credits) {
-    return credits >= this.cost && !this.isBuilding;
-  }
+    return this.sprite.alive && credits >= this.cost && !this.isBuilding;
+  };
   this.build = function() {
+    if (!this.sprite.alive) {
+      return;
+    }
     if (!this.isBuilding) {
       if (this.team === 'player') {
         sounds.build.play();
       }
     }
     this.isBuilding = true;
-  }
+  };
   this.update = function(units) {
     var unit = null;
     this.healthbar.update(this.sprite, this.sprite.health / health);

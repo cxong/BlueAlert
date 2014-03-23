@@ -13,6 +13,8 @@ var enemyState = {
   marineTankCounter: 0,
   army: 0
 };
+var gameState = 'play';
+var splash;
 
 // Layout: statusbar, game window, build bars
 var statusHeight = 50;
@@ -27,6 +29,8 @@ var music;
 
 function preload () {
   game.load.image('bgimage', 'images/bg.jpg');
+  game.load.image('victory', 'images/victory.jpg');
+  game.load.image('defeat', 'images/defeat.jpg');
   game.load.image('brushed', 'images/brushed.jpg');
   game.load.image('marine_button', 'images/marine_button.jpg');
   game.load.image('tank_button', 'images/tank_button.jpg');
@@ -142,6 +146,8 @@ function create () {
   buttons.truck = new BuildButton(game, x, y, 'truck_button', refinery, credits);
   
   mouse = new Mouse(game, statusHeight, gameWindowHeight);
+  
+  splash = null;
 }
 
 // Building factory functions
@@ -151,7 +157,7 @@ function NewBarracks(x, team, unitFunc) {
                       'explode',
                       'training', 'training_complete',
                       200, {x:x, y:groundY}, team,
-                      unitFunc, 200, 200);
+                      unitFunc, 150, 100);
 }
 function NewFactory(x, team, unitFunc) {
   return new Building(game, groups.buildings,
@@ -231,92 +237,127 @@ function NewTruck(x, team) {
 
 var cameraSpeed = 40;
 function update() {
-  var i;
-  // Select unit on click
-  mouse.update(groups.units);
-
-  for (i = 0; i < buildings.length; i++) {
-    var building = buildings[i];
-    if (building.team !== 'player') {
-      // Enemy build AI: one truck per 10 units, 2x marines, 1x tank
-      var tryBuild = false;
-      var canBuild = building.canBuild(creditsEnemy);
-      if (enemyState.trucks < enemyState.army / 10 + 1) {
-        tryBuild = building.isRefinery;
-        if (tryBuild && canBuild) {
-          enemyState.trucks++;
-        }
-      } else if (enemyState.marineTankCounter < 2) {
-        tryBuild = building.name === 'barracks_enemy';
-        if (tryBuild && canBuild) {
-          enemyState.marineTankCounter++;
-          enemyState.army++;
-        }
-      } else {
-        tryBuild = building.name === 'war_fac_enemy';
-        if (tryBuild && canBuild) {
-          enemyState.marineTankCounter -= 2;
-          enemyState.army++;
-        }
-      }
-      if (tryBuild && building.canBuild(creditsEnemy)) {
-        building.build();
-        creditsEnemy -= building.cost;
-      }
-    }
-  }
+  if (gameState === 'play') {
+    var i;
+    // Select unit on click
+    mouse.update(groups.units);
   
-  for (i = 0; i < units.length; i++) {
-    var unit = units[i];
-    unit.update(units, buildings, groups.ore);
-    // Check for refining
-    if (unit.oreDeposited > 0) {
-      if (unit.team === 'player') {
-        credits.addCredits(unit.oreDeposited);
-      } else {
-        // The CPU cheats!
-        creditsEnemy += unit.oreDeposited * 1.4;
-      }
-      unit.oreDeposited = 0;
-    }
-    // Check for dead units
-    if (unit.sprite.health <= 0) {
-      if (unit.team !== 'player') {
-        if (unit.name == 'truck_enemy') {
-          enemyState.trucks--;
+    for (i = 0; i < buildings.length; i++) {
+      var building = buildings[i];
+      if (building.team !== 'player') {
+        // Enemy build AI: one truck per 10 units, 2x marines, 1x tank
+        var tryBuild = false;
+        var canBuild = building.canBuild(creditsEnemy);
+        if (enemyState.trucks < enemyState.army / 10 + 1) {
+          tryBuild = building.isRefinery;
+          if (tryBuild && canBuild) {
+            enemyState.trucks++;
+          }
+        } else if (enemyState.marineTankCounter < 2) {
+          tryBuild = building.name === 'barracks_enemy';
+          if (tryBuild && canBuild) {
+            enemyState.marineTankCounter++;
+            enemyState.army++;
+          }
         } else {
-          enemyState.army--;
+          tryBuild = building.name === 'war_fac_enemy';
+          if (tryBuild && canBuild) {
+            enemyState.marineTankCounter -= 2;
+            enemyState.army++;
+          }
+        }
+        if (tryBuild && building.canBuild(creditsEnemy)) {
+          building.build();
+          creditsEnemy -= building.cost;
         }
       }
-      unit.kill(groups.units);
-      units.splice(i, 1);
-      i--;
     }
-  }
-  for (i = 0; i < buildings.length; i++) {
-    buildings[i].update(units);
-    // Check for dead buildings
-    if (buildings[i].sprite.health <= 0) {
-      // play death effects
-      buildings[i].kill(groups.buildings);
-      buildings.splice(i, 1);
-      i--;
+    
+    for (i = 0; i < units.length; i++) {
+      var unit = units[i];
+      unit.update(units, buildings, groups.ore);
+      // Check for refining
+      if (unit.oreDeposited > 0) {
+        if (unit.team === 'player') {
+          credits.addCredits(unit.oreDeposited);
+        } else {
+          // The CPU cheats!
+          creditsEnemy += unit.oreDeposited * 1.4;
+        }
+        unit.oreDeposited = 0;
+      }
+      // Check for dead units
+      if (unit.sprite.health <= 0) {
+        if (unit.team !== 'player') {
+          if (unit.name == 'truck_enemy') {
+            enemyState.trucks--;
+          } else {
+            enemyState.army--;
+          }
+        }
+        unit.kill(groups.units);
+        units.splice(i, 1);
+        i--;
+      }
     }
+    for (i = 0; i < buildings.length; i++) {
+      buildings[i].update(units);
+      // Check for dead buildings
+      if (buildings[i].sprite.health <= 0) {
+        // play death effects
+        buildings[i].kill(groups.buildings);
+        buildings.splice(i, 1);
+        i--;
+        // Check victory conditions
+        var playerAlive = false;
+        var enemyAlive = false;
+        for (var j = 0; j < buildings.length; j++) {
+          if (!buildings[j].sprite.alive) {
+            continue;
+          }
+          if (buildings[j].team === 'player') {
+            playerAlive = true;
+          } else {
+            enemyAlive = true;
+          }
+        }
+        if (!playerAlive) {
+          if (splash === null) {
+            splash = game.add.sprite(game.camera.x + game.width / 2,
+                                     game.camera.y + game.height / 2,
+                                     'defeat');
+            splash.x -= splash.width / 2;
+            splash.y -= splash.height / 2;
+            gameState = 'end';
+          }
+        } else if (!enemyAlive) {
+          if (splash === null) {
+            splash = game.add.sprite(game.camera.x + game.width / 2,
+                                     game.camera.y + game.height / 2,
+                                     'victory');
+            splash.x -= splash.width / 2;
+            splash.y -= splash.height / 2;
+            gameState = 'end';
+          }
+        }
+      }
+    }
+    
+    credits.update();
+    
+    buttons.marine.update();
+    buttons.tank.update();
+    buttons.truck.update();
+    
+    // Move camera
+    if (cursors.right.isDown) {
+      game.camera.x += cameraSpeed;
+    } else if (cursors.left.isDown) {
+      game.camera.x -= cameraSpeed;
+    }
+  
+    // Parallax
+    bg.x = game.camera.x * 0.7;
+  } else if (gameState === 'end') {
   }
-  
-  credits.update();
-  
-  buttons.marine.update();
-  buttons.tank.update();
-  buttons.truck.update();
-  
-  // Move camera
-  if (cursors.right.isDown) {
-    game.camera.x += cameraSpeed;
-  } else if (cursors.left.isDown) {
-    game.camera.x -= cameraSpeed;
-  }
-
-  // Parallax
-  bg.x = game.camera.x * 0.7;
 }

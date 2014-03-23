@@ -14,7 +14,16 @@ var BuildButton = function(game, x, y, sprite, building, credits) {
   this.shade.fixedToCamera = true;
   this.shade.kill();
   this.update = function() {
-    if (this.building.isBuilding) {
+    if (!this.building.sprite.alive) {
+      // Dead building; permanently shade
+      if (!this.shade.alive) {
+        this.shade.revive(1);
+        this.shade.cameraOffset.x = this.button.cameraOffset.x;
+        this.shade.cameraOffset.y = this.button.cameraOffset.y;
+      }
+      this.shade.width = this.button.width;
+      this.shade.height = this.button.height;
+    } else if (this.building.isBuilding) {
       // draw a shade over the button
       if (!this.shade.alive) {
         this.shade.revive(1);
