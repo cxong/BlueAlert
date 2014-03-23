@@ -25,6 +25,8 @@ function preload () {
   game.load.image('selection', 'images/selection.png');
   game.load.image('health', 'images/health.png');
   game.load.image('health_back', 'images/health_back.png');
+  game.load.image('sabot', 'images/sabot.png');
+  game.load.image('bullet', 'images/bullet.png');
   game.load.image('tank', 'images/tank.png');
   game.load.image('tank_enemy', 'images/tank_enemy.png');
   game.load.image('marine', 'images/marine.png');
@@ -57,7 +59,7 @@ function create () {
     units: game.add.group()
   };
  
-  game.world.setBounds(0, 0, 10000, windowSize.y);
+  game.world.setBounds(0, 0, 5000, windowSize.y);
 
   // Add a bunch of tanks
   for (var i = 300; i < 1000; i += 300) {
@@ -96,7 +98,9 @@ function NewFactory(x, team, unitFunc) {
 // Unit factory functions
 function NewTank(x, team) {
   return new Unit(game, groups.units,
-                  'tank', 'explode',
+                  'tank',
+                  'sabot', 1, 100, -50,
+                  'explode',
                   3.0,
                   20.0, 'tank_fire', 1.0, 400,
                   100,
@@ -105,7 +109,9 @@ function NewTank(x, team) {
 }
 function NewTankEnemy(x, team) {
   return new Unit(game, groups.units,
-                  'tank_enemy', 'explode',
+                  'tank_enemy',
+                  'sabot', 1, 100, -50,
+                  'explode',
                   2.5,
                   20.0, 'tank_fire', 1.0, 400,
                   120,
@@ -114,7 +120,9 @@ function NewTankEnemy(x, team) {
 }
 function NewMarine(x, team) {
   return new Unit(game, groups.units,
-                  'marine', 'agony',
+                  'marine',
+                  'bullet', 5, 20, -40,
+                  'agony',
                   2.4,
                   5.0, 'm16', 2.0, 300,
                   50,
@@ -123,7 +131,9 @@ function NewMarine(x, team) {
 }
 function NewMarineEnemy(x, team) {
   return new Unit(game, groups.units,
-                  'marine_enemy', 'agony',
+                  'marine_enemy',
+                  'bullet', 5, 20, -40,
+                  'agony',
                   2.0,
                   5.0, 'm16', 2.0, 300,
                   60,

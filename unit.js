@@ -1,4 +1,6 @@
-var Unit = function(game, units, spritename, diesnd,
+var Unit = function(game, units, spritename,
+                    bulletsprite, numbullets, muzzlex, muzzley,
+                    diesnd,
                     speed, attackstr, attacksnd, attackspeed, range, health, pos, team) {
   this.sprite = game.add.sprite(pos.x, pos.y, spritename);
   this.sprite.anchor.x = 0.5;
@@ -6,6 +8,11 @@ var Unit = function(game, units, spritename, diesnd,
   this.sprite.body.width = this.sprite.width * 0.7;
   this.sprite.unit = this;
   units.add(this.sprite);
+  
+  this.emitter = game.add.emitter(0, 0, numbullets);
+  this.emitter.makeParticles(bulletsprite);
+  this.emitter.gravity = 0
+  this.emitter.setRotation(0, 0);
   
   this.team = team;
   // Flip around if not player's units
@@ -136,6 +143,12 @@ var Unit = function(game, units, spritename, diesnd,
                 sounds.fire.play('', 0, volume);
               }
               this.target.sprite.damage(attackstr);
+              this.emitter.x = this.sprite.x + muzzlex * this.sprite.scale.x;
+              this.emitter.y = this.sprite.y + muzzley;
+              var xspeed = 1500.0 * this.sprite.scale.x;
+              this.emitter.setXSpeed(xspeed, xspeed);
+              this.emitter.setYSpeed(-1, 1);
+              this.emitter.start(false, 180, 20, numbullets);
             }
           }
         } else {
@@ -162,6 +175,7 @@ var Unit = function(game, units, spritename, diesnd,
   this.kill = function() {
     this.healthbar.destroy();
     this.frameGroup.removeAll();
+    this.emitter.destroy();
     units.remove(this.sprite);
     var volume = (2000 - Math.abs(this.sprite.x - game.camera.x)) / 2000;
     if (volume > 0) {
