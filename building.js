@@ -1,11 +1,13 @@
 var Building = function(game, buildings,
                         spritename, diesnd,
                         buildsnd, completesnd,
-                        health, pos, team, buildFunc, buildTime) {
+                        health, pos, team,
+                        buildFunc, cost, buildTime) {
   this.sprite = game.add.sprite(pos.x, pos.y, spritename);
   this.sprite.anchor.x = 0.5;
   this.sprite.anchor.y = 1;
   buildings.add(this.sprite);
+  this.name = spritename;
   
   this.team = team;
   this.dest = game.world.bounds.width;
@@ -25,8 +27,13 @@ var Building = function(game, buildings,
   this.healthbar = new Healthbar(game);
   
   // Buildings build units
+  this.cost = cost;
+  this.buildTime = buildTime;
   this.buildCounter = buildTime;
   this.isBuilding = false;
+  this.canBuild = function(credits) {
+    return credits >= this.cost && !this.isBuilding;
+  }
   this.build = function() {
     if (!this.isBuilding) {
       if (this.team === 'player') {
@@ -36,13 +43,14 @@ var Building = function(game, buildings,
     this.isBuilding = true;
   }
   this.update = function(units) {
+    var unit = null;
     this.healthbar.update(this.sprite, this.sprite.health / health);
     if (this.isBuilding) {
       this.buildCounter--;
       if (this.buildCounter <= 0) {
         this.buildCounter = buildTime;
         if (buildFunc) {
-          var unit = buildFunc(this.sprite.x, this.team);
+          unit = buildFunc(this.sprite.x, this.team);
           units.push(unit);
           unit.moveTo(this.dest);
           if (this.team === 'player') {
@@ -52,6 +60,7 @@ var Building = function(game, buildings,
         }
       }
     }
+    return unit;
   };
   
   this.kill = function() {

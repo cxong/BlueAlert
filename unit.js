@@ -8,6 +8,7 @@ var Unit = function(game, units, spritename,
   this.sprite.body.width = this.sprite.width * 0.7;
   this.sprite.unit = this;
   units.add(this.sprite);
+  this.name = spritename;
   
   this.emitter = game.add.emitter(0, 0, numbullets);
   this.emitter.makeParticles(bulletsprite);
@@ -243,6 +244,9 @@ var Unit = function(game, units, spritename,
   
   this.kill = function() {
     this.healthbar.destroy();
+    if (this.manabar) {
+      this.manabar.destroy();
+    }
     this.frameGroup.removeAll();
     this.emitter.destroy();
     units.remove(this.sprite);
