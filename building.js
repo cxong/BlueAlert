@@ -20,6 +20,7 @@ var Building = function(game, buildings,
   };
   
   this.sprite.health = health;
+  this.healthbar = new Healthbar(game);
   
   // Buildings build units
   this.buildCounter = buildTime;
@@ -33,6 +34,7 @@ var Building = function(game, buildings,
     this.isBuilding = true;
   }
   this.update = function(units) {
+    this.healthbar.update(this.sprite, this.sprite.health / health);
     if (this.isBuilding) {
       this.buildCounter--;
       if (this.buildCounter <= 0) {
@@ -51,6 +53,7 @@ var Building = function(game, buildings,
   };
   
   this.kill = function() {
+    this.healthbar.destroy();
     buildings.remove(this.sprite);
     sounds.die.play();
   };

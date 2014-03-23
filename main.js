@@ -23,6 +23,8 @@ function preload () {
   
   game.load.image('frame', 'images/frame.png');
   game.load.image('selection', 'images/selection.png');
+  game.load.image('health', 'images/health.png');
+  game.load.image('health_back', 'images/health_back.png');
   game.load.image('tank', 'images/tank.png');
   game.load.image('tank_enemy', 'images/tank_enemy.png');
   game.load.image('marine', 'images/marine.png');

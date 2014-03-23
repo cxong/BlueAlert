@@ -19,6 +19,7 @@ var Unit = function(game, units, spritename, diesnd,
   };
 
   this.sprite.health = health;
+  this.healthbar = new Healthbar(game);
   
   this.isSelected = false;
   this.frameul = game.add.sprite(0, 0, 'frame');
@@ -75,6 +76,7 @@ var Unit = function(game, units, spritename, diesnd,
     if (!this.isHover && !this.isSelected) {
       this.frameGroup.visible = false;
     }
+    this.healthbar.update(this.sprite, this.sprite.health / health);
     this.frameul.x = this.sprite.body.x;
     this.frameul.y = this.sprite.body.y;
     this.frameur.x = this.sprite.body.x + this.sprite.body.width;
@@ -158,6 +160,7 @@ var Unit = function(game, units, spritename, diesnd,
   };
   
   this.kill = function() {
+    this.healthbar.destroy();
     this.frameGroup.removeAll();
     units.remove(this.sprite);
     var volume = (2000 - Math.abs(this.sprite.x - game.camera.x)) / 2000;
