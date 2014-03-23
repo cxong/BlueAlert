@@ -10,7 +10,7 @@ var BuildButton = function(game, x, y, sprite, building, credits) {
   this.button.fixedToCamera = true;
   this.button.cameraOffset.x = x;
   this.button.cameraOffset.y = y;
-  this.shade = game.add.tileSprite(0, 0, 1, 1, 'shade');
+  this.shade = game.add.sprite(0, 0, 'shade');
   this.shade.fixedToCamera = true;
   this.shade.kill();
   this.update = function() {

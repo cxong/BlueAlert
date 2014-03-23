@@ -73,6 +73,7 @@ function preload () {
 }
 
 function create () {
+  var i;
   bg = game.add.sprite(0, statusHeight, 'bgimage');
   
   music = game.add.audio('bgaudio');
@@ -81,14 +82,14 @@ function create () {
   groups = {
     buildings: game.add.group(),
     ore: game.add.group(),
-    units: game.add.group(),
+    units: game.add.group()
   };
  
   game.world.setBounds(0, 0, 10000, windowSize.y);
   
   // Credits
   var topbg = game.add.sprite(0, 0, 'brushed');
-  topbg.fixedToCamera = true
+  topbg.fixedToCamera = true;
   topbg.cameraOffset.y = -100;
   credits = new Credits(game, 9, 9);
   credits.addCredits(5000);
@@ -98,7 +99,7 @@ function create () {
     units.push(NewTank(i, 'player'));
   }*/
   // Add some enemy units
-  for (var i = game.world.bounds.width - 500;
+  for (i = game.world.bounds.width - 500;
        i < game.world.bounds.width - 400;
        i += 100) {
     units.push(NewTankEnemy(i, 'cpu'));
@@ -117,7 +118,7 @@ function create () {
   buildings.push(NewRefinery(game.world.bounds.width - 1250, 'cpu', NewTruck));
   
   // Add ore patches
-  for (var i = 2000; i < game.world.bounds.width - 2000; i += Math.random(2000) + 500) {
+  for (i = 2000; i < game.world.bounds.width - 2000; i += Math.random(2000) + 500) {
     var patchSize = Math.random(800) + 200;
     for (var j = 0; j < patchSize; j += oreWidth) {
       ore = groups.ore.create(i + j, groundY, 'ore');
@@ -200,7 +201,7 @@ function NewMarine(x, team) {
                   'bullet', 5, 20, -40,
                   'agony',
                   2.4,
-                  5.0, 'm16', 2.0, 300,
+                  10.0, 'm16', 2.0, 300,
                   50,
                   {x:x, y:groundY},
                   team);
@@ -211,7 +212,7 @@ function NewMarineEnemy(x, team) {
                   'bullet', 5, 20, -40,
                   'agony',
                   2.0,
-                  5.0, 'm16', 2.0, 300,
+                  10.0, 'm16', 2.0, 300,
                   60,
                   {x:x, y:groundY},
                   team);
@@ -230,42 +231,42 @@ function NewTruck(x, team) {
 
 var cameraSpeed = 40;
 function update() {
-  
+  var i;
   // Select unit on click
   mouse.update(groups.units);
 
-  for (var i = 0; i < buildings.length; i++) {
+  for (i = 0; i < buildings.length; i++) {
     var building = buildings[i];
     if (building.team !== 'player') {
       // Enemy build AI: one truck per 10 units, 2x marines, 1x tank
       var tryBuild = false;
-      var buildFunc = function(){};
+      var canBuild = building.canBuild(creditsEnemy);
       if (enemyState.trucks < enemyState.army / 10 + 1) {
         tryBuild = building.isRefinery;
-        buildFunc = function() { enemyState.trucks++; };
+        if (tryBuild && canBuild) {
+          enemyState.trucks++;
+        }
       } else if (enemyState.marineTankCounter < 2) {
         tryBuild = building.name === 'barracks_enemy';
-        buildFunc = function() { enemyState.marineTankCounter++; enemyState.army++; };
+        if (tryBuild && canBuild) {
+          enemyState.marineTankCounter++;
+          enemyState.army++;
+        }
       } else {
         tryBuild = building.name === 'war_fac_enemy';
-        buildFunc = function() { enemyState.marineTankCounter -= 2; enemyState.army++; };
+        if (tryBuild && canBuild) {
+          enemyState.marineTankCounter -= 2;
+          enemyState.army++;
+        }
       }
       if (tryBuild && building.canBuild(creditsEnemy)) {
         building.build();
         creditsEnemy -= building.cost;
-        buildFunc();
-      }
-    } else {
-      // Auto build
-      var tryBuild = false;//true;
-      if (tryBuild && building.canBuild(credits.credits)) {
-        building.build();
-        credits.addCredits(-building.cost);
       }
     }
   }
   
-  for (var i = 0; i < units.length; i++) {
+  for (i = 0; i < units.length; i++) {
     var unit = units[i];
     unit.update(units, buildings, groups.ore);
     // Check for refining
@@ -292,7 +293,7 @@ function update() {
       i--;
     }
   }
-  for (var i = 0; i < buildings.length; i++) {
+  for (i = 0; i < buildings.length; i++) {
     buildings[i].update(units);
     // Check for dead buildings
     if (buildings[i].sprite.health <= 0) {

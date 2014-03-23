@@ -1,5 +1,5 @@
 var Mouse = function(game, statusHeight, gameWindowHeight) {
-  this.sprite = game.add.tileSprite(0, 0, 1, 1, 'selection');
+  this.sprite = game.add.sprite(0, 0, 'selection');
   this.sprite.kill();
   this.isDragging = false;
   this.dragStartX = null;

@@ -12,7 +12,7 @@ var Unit = function(game, units, spritename,
   
   this.emitter = game.add.emitter(0, 0, numbullets);
   this.emitter.makeParticles(bulletsprite);
-  this.emitter.gravity = 0
+  this.emitter.gravity = 0;
   this.emitter.setRotation(0, 0);
   
   this.team = team;
@@ -28,7 +28,7 @@ var Unit = function(game, units, spritename,
 
   this.sprite.health = health;
   this.healthbar = new Healthbar(game);
-  if (attackstr == 0) {
+  if (attackstr === 0) {
     this.manabar = new Manabar(game);
   }
   
@@ -79,21 +79,23 @@ var Unit = function(game, units, spritename,
   this.attackCounter = 0;
   this.target = null;
   this.attack = function(target) {
-    if (attackstr == 0) {
+    if (attackstr === 0) {
       return;
     }
     this.target = target;
     this.dest = null;
-  }
+  };
   
   this.oreDeposited = 0;
   this.ore = 0;
   this.update = function(units, buildings, ores) {
+    var i;
+    var overlap;
     if (!this.isHover && !this.isSelected) {
       this.frameGroup.visible = false;
     }
     this.healthbar.update(this.sprite, this.sprite.health / health);
-    if (attackstr == 0) {
+    if (attackstr === 0) {
       this.manabar.update(this.sprite, this.ore / 1000);
     }
     this.frameul.x = this.sprite.body.x;
@@ -117,7 +119,7 @@ var Unit = function(game, units, spritename,
     // Special AI for harvesters:
     // Move towards opposite end and look for ore if not full
     // Return if full
-    if (attackstr == 0) {
+    if (attackstr === 0) {
       if (this.ore >= 1000) {
         if (this.team !== 'player') {
           this.dest = game.world.bounds.width;
@@ -134,9 +136,9 @@ var Unit = function(game, units, spritename,
       
       // Check for ore
       if (this.ore < 1000) {
-        if (this.target == null || !this.target.alive) {
+        if (this.target === null || !this.target.alive) {
           var closestOre = -1;
-          for (var i = 0; i < ores.length; i++) {
+          for (i = 0; i < ores.length; i++) {
             var ore = ores.getAt(i);
             var dist = Math.abs(ore.x - this.sprite.x);
             if ((closestOre === -1 || dist < closestOre) &&
@@ -149,7 +151,7 @@ var Unit = function(game, units, spritename,
         }
         if (this.target && this.target.alive) {
           this.dest = this.target.x;
-          var overlap = this.target.x - 10 < this.sprite.x &&
+          overlap = this.target.x - 10 < this.sprite.x &&
             this.target.x + 10 > this.sprite.x;
           if (overlap) {
             this.target.damage(1);
@@ -158,9 +160,9 @@ var Unit = function(game, units, spritename,
         }
       } else {
         // Check for refinery
-        for (var i = 0; i < buildings.length; i++) {
+        for (i = 0; i < buildings.length; i++) {
           var building = buildings[i];
-          var overlap = building.sprite.x - 10 < this.sprite.x &&
+          overlap = building.sprite.x - 10 < this.sprite.x &&
             building.sprite.x + 10 > this.sprite.x;
           if (overlap && building.team == this.team && building.sprite.alive &&
               building.isRefinery){
@@ -174,22 +176,22 @@ var Unit = function(game, units, spritename,
     
     // Stop and attack
     if (!this.forceMove && attackstr > 0) {
-      if (this.target == null) {
+      if (this.target === null) {
         // Find a unit to attack
-        for (var i = 0; i < units.length; i++) {
+        for (i = 0; i < units.length; i++) {
           var unit = units[i];
-          var overlap = unit.sprite.x - range * 1.3 < this.sprite.x &&
+          overlap = unit.sprite.x - range * 1.3 < this.sprite.x &&
               unit.sprite.x + range * 1.3 > this.sprite.x;
           if (overlap && unit.team != this.team && unit.sprite.alive) {
             this.attack(unit);
             break;
           }
         }
-        if (this.target == null) {
+        if (this.target === null) {
           // attack buildings
-          for (var i = 0; i < buildings.length; i++) {
+          for (i = 0; i < buildings.length; i++) {
             var building = buildings[i];
-            var overlap = building.sprite.x - range < this.sprite.x &&
+            overlap = building.sprite.x - range < this.sprite.x &&
               building.sprite.x + range > this.sprite.x;
             if (overlap && building.team != this.team && building.sprite.alive){
               this.attack(building);
@@ -199,7 +201,7 @@ var Unit = function(game, units, spritename,
         }
       } else {
         if (this.target.sprite.alive) {
-          var overlap = this.target.sprite.x - range < this.sprite.x &&
+          overlap = this.target.sprite.x - range < this.sprite.x &&
             this.target.sprite.x + range > this.sprite.x;
           if (!overlap) {
             this.dest = this.target.sprite.x;
@@ -229,7 +231,7 @@ var Unit = function(game, units, spritename,
     this.attackCounter--;
 
     // Move towards destination at speed
-    if (this.dest != null) {
+    if (this.dest !== null) {
       if (this.dest > this.sprite.x + speed) {
         this.sprite.scale.x = 1;
         this.sprite.x += speed;

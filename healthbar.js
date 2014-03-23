@@ -1,8 +1,8 @@
 var Healthbar = function(game) {
-  this.spriteBack = game.add.tileSprite(0, 0, 1, 1, 'health_back');
+  this.spriteBack = game.add.sprite(0, 0, 'health_back');
   this.spriteBack.height = 6;
   this.spriteBack.kill();
-  this.sprite = game.add.tileSprite(0, 0, 1, 1, 'health');
+  this.sprite = game.add.sprite(0, 0, 'health');
   this.sprite.height = 4;
   this.sprite.kill();
   
@@ -28,10 +28,10 @@ var Healthbar = function(game) {
 };
 
 var Manabar = function(game) {
-  this.spriteBack = game.add.tileSprite(0, 0, 1, 1, 'health_back');
+  this.spriteBack = game.add.sprite(0, 0, 'health_back');
   this.spriteBack.height = 6;
   this.spriteBack.kill();
-  this.sprite = game.add.tileSprite(0, 0, 1, 1, 'mana');
+  this.sprite = game.add.sprite(0, 0, 'mana');
   this.sprite.height = 4;
   this.sprite.kill();
   
