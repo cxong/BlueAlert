@@ -85,6 +85,7 @@ var Unit = function(game, units, spritename,
     this.dest = null;
   }
   
+  this.oreDeposited = 0;
   this.ore = 0;
   this.update = function(units, buildings, ores) {
     if (!this.isHover && !this.isSelected) {
@@ -118,15 +119,15 @@ var Unit = function(game, units, spritename,
     if (attackstr == 0) {
       if (this.ore >= 1000) {
         if (this.team !== 'player') {
-          this.dest = 0;
-        } else {
           this.dest = game.world.bounds.width;
+        } else {
+          this.dest = 0;
         }
       } else {
         if (this.team !== 'player') {
-          this.dest = game.world.bounds.width;
-        } else {
           this.dest = 0;
+        } else {
+          this.dest = game.world.bounds.width;
         }
       }
       
@@ -162,8 +163,8 @@ var Unit = function(game, units, spritename,
             building.sprite.x + 10 > this.sprite.x;
           if (overlap && building.team == this.team && building.sprite.alive &&
               building.isRefinery){
+            this.oreDeposited = this.ore;
             this.ore = 0;
-            // TODO: add credits
             break;
           }
         }

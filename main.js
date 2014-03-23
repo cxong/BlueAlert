@@ -5,6 +5,7 @@ var bg;
 var units = [];
 var buildings = [];
 var cursors;
+var credits;
 
 // Layout: statusbar, game window, build bars
 var statusHeight = 50;
@@ -18,6 +19,7 @@ var music;
 
 function preload () {
   game.load.image('bgimage', 'images/bg.jpg');
+  game.load.image('brushed', 'images/brushed.jpg');
   
   game.load.audio('bgaudio', 'audio/bg.mp3');
   
@@ -26,6 +28,9 @@ function preload () {
   game.load.image('health', 'images/health.png');
   game.load.image('mana', 'images/mana.png');
   game.load.image('health_back', 'images/health_back.png');
+  game.load.image('cap_left', 'images/cap_left.png');
+  game.load.image('cap_right', 'images/cap_right.png');
+  game.load.spritesheet('digits', 'images/digits.png', 32, 32);
   game.load.image('ore', 'images/ore.png');
   game.load.image('sabot', 'images/sabot.png');
   game.load.image('bullet', 'images/bullet.png');
@@ -42,6 +47,7 @@ function preload () {
   game.load.image('refinery', 'images/refinery.png');
   game.load.image('refinery_enemy', 'images/refinery_enemy.png');
   
+  game.load.audio('collect', 'audio/collect.mp3');
   game.load.audio('explode', 'audio/explode.mp3');
   game.load.audio('agony', 'audio/agony.mp3');
   game.load.audio('tank_fire', 'audio/tank_fire.mp3');
@@ -67,6 +73,13 @@ function create () {
   };
  
   game.world.setBounds(0, 0, 10000, windowSize.y);
+  
+  // Credits
+  var topbg = game.add.sprite(0, 0, 'brushed');
+  topbg.fixedToCamera = true
+  topbg.cameraOffset.y = -100;
+  credits = new Credits(game, 9, 9);
+  credits.addCredits(3000);
 
   // Add a bunch of tanks
   /*for (var i = 1000; i < 1500; i += 150) {
@@ -87,7 +100,8 @@ function create () {
   
   // Add ore patches
   for (var i = 2000; i < game.world.bounds.width - 2000; i += Math.random(2000) + 500) {
-    for (var j = 0; j < Math.random(800) + 200; j += oreWidth) {
+    var patchSize = Math.random(800) + 200;
+    for (var j = 0; j < patchSize; j += oreWidth) {
       ore = groups.ore.create(i + j, statusHeight + gameWindowHeight, 'ore');
       ore.anchor.x = 0.5;
       ore.anchor.y = 1;
@@ -95,6 +109,11 @@ function create () {
       oreWidth = ore.width;
     }
   }
+  
+  // Bottom
+  var bottombg = game.add.sprite(0, 0, 'brushed');
+  bottombg.fixedToCamera = true;
+  bottombg.cameraOffset.y = statusHeight + gameWindowHeight;
   
   mouse = new Mouse(game, statusHeight, gameWindowHeight);
 }
@@ -194,6 +213,11 @@ function update() {
   
   for (var i = 0; i < units.length; i++) {
     units[i].update(units, buildings, groups.ore);
+    // Check for refining
+    if (units[i].oreDeposited > 0) {
+      credits.addCredits(units[i].oreDeposited);
+      units[i].oreDeposited = 0;
+    }
     // Check for dead units
     if (units[i].sprite.health <= 0) {
       // play death effects
@@ -212,6 +236,8 @@ function update() {
       i--;
     }
   }
+  
+  credits.update();
   
   // Move camera
   if (cursors.right.isDown) {
