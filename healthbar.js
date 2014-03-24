@@ -8,13 +8,13 @@ var Healthbar = function(game) {
   
   this.update = function(unitSprite, healthRatio) {
     this.spriteBack.x = unitSprite.x - unitSprite.body.width / 2;
-    this.spriteBack.y = unitSprite.y - unitSprite.height;
+    this.spriteBack.y = unitSprite.y - unitSprite.height - 6;
     this.spriteBack.width = Math.abs(unitSprite.body.width);
     if (!this.spriteBack.alive) {
       this.spriteBack.revive(1);
     }
     this.sprite.x = unitSprite.x + 1 - unitSprite.body.width / 2;
-    this.sprite.y = unitSprite.y + 1 - unitSprite.height;
+    this.sprite.y = unitSprite.y + 1 - unitSprite.height - 6;
     this.sprite.width = (Math.abs(unitSprite.body.width) - 2) * healthRatio;
     if (!this.sprite.alive) {
       this.sprite.revive(1);
@@ -37,13 +37,13 @@ var Manabar = function(game) {
   
   this.update = function(unitSprite, manaRatio) {
     this.spriteBack.x = unitSprite.x - unitSprite.body.width / 2;
-    this.spriteBack.y = unitSprite.y - unitSprite.height + 6;
+    this.spriteBack.y = unitSprite.y - unitSprite.height;
     this.spriteBack.width = Math.abs(unitSprite.body.width);
     if (!this.spriteBack.alive) {
       this.spriteBack.revive(1);
     }
     this.sprite.x = unitSprite.x + 1 - unitSprite.body.width / 2;
-    this.sprite.y = unitSprite.y + 1 - unitSprite.height + 6;
+    this.sprite.y = unitSprite.y + 1 - unitSprite.height;
     this.sprite.width = (Math.abs(unitSprite.body.width) - 2) * manaRatio;
     if (!this.sprite.alive) {
       this.sprite.revive(1);
