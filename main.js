@@ -27,6 +27,9 @@ var groups;
 
 var music;
 
+var tooltip;
+
+
 function preload () {
   game.load.image('bgimage', 'images/bg.jpg');
   game.load.image('victory', 'images/victory.jpg');
@@ -77,6 +80,8 @@ function preload () {
 }
 
 function create () {
+  game.stage.backgroundColor = '0x666699';
+
   var i;
   bg = game.add.sprite(0, statusHeight, 'bgimage');
   
@@ -137,13 +142,20 @@ function create () {
   var bottombg = game.add.sprite(0, 0, 'brushed');
   bottombg.fixedToCamera = true;
   bottombg.cameraOffset.y = groundY;
+  var style = { font: "18px Arial", fill: "#dddd33" };
   var x = 10;
   var y = groundY + 10;
   buttons.marine = new BuildButton(game, x, y, 'marine_button', barracks, credits);
   x += buttons.marine.button.width + 10;
-  buttons.tank = new BuildButton(game, x, y, 'tank_button', factory, credits);
+  buttons.tank = new BuildButton(game, x, y, 'tank_button', factory, credits, tooltip);
   x += buttons.tank.button.width + 10;
-  buttons.truck = new BuildButton(game, x, y, 'truck_button', refinery, credits);
+  buttons.truck = new BuildButton(game, x, y, 'truck_button', refinery, credits, tooltip);
+
+  tooltip = game.add.text(0, 0, "tooltip", style);
+  // Need to set these after tooltip is created
+  buttons.marine.setTooltip(tooltip, 'Marine');
+  buttons.tank.setTooltip(tooltip, 'Tank');
+  buttons.truck.setTooltip(tooltip, 'Harvester truck');
   
   mouse = new Mouse(game, statusHeight, gameWindowHeight);
   
@@ -234,6 +246,7 @@ function NewTruck(x, team) {
                   {x:x, y:groundY},
                   team);
 }
+
 
 var cameraSpeed = 40;
 function update() {

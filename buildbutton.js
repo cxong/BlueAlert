@@ -1,4 +1,4 @@
-var BuildButton = function(game, x, y, sprite, building, credits) {
+var BuildButton = function(game, x, y, sprite, building, credits, tooltip, unitname) {
   this.building = building;
   this.build = function() {
     if (this.building.canBuild(credits.credits)) {
@@ -10,6 +10,25 @@ var BuildButton = function(game, x, y, sprite, building, credits) {
   this.button.fixedToCamera = true;
   this.button.cameraOffset.x = x;
   this.button.cameraOffset.y = y;
+  
+  this.unitname = '';
+  this.tooltip = null;
+  this.showTooltip = false;
+  this.onOver = function() {
+    this.showTooltip = true;
+    this.tooltip.content = this.unitname + ' $' + this.building.cost;
+  };
+  this.onOut = function() {
+    this.showTooltip = false;
+    this.tooltip.content = '';
+  };
+  this.setTooltip = function(tooltip, unitname) {
+    this.unitname = unitname;
+    this.tooltip = tooltip;
+    this.button.onInputOver.add(this.onOver, this);
+    this.button.onInputOut.add(this.onOut, this);
+  };
+  
   this.shade = game.add.sprite(0, 0, 'shade');
   this.shade.fixedToCamera = true;
   this.shade.kill();
@@ -34,6 +53,12 @@ var BuildButton = function(game, x, y, sprite, building, credits) {
       this.shade.height = (this.building.buildTime - this.building.buildCounter) / this.building.buildTime * this.button.height;
     } else if (this.shade.alive) {
       this.shade.kill();
+    }
+    
+    // Update tooltip location
+    if (this.showTooltip) {
+      this.tooltip.x = game.input.mousePointer.worldX + 16;
+      this.tooltip.y = game.input.mousePointer.worldY + 16;
     }
   };
 };
