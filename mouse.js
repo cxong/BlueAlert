@@ -4,6 +4,10 @@ var Mouse = function(game, statusHeight, gameWindowHeight) {
   this.isDragging = false;
   this.dragStartX = null;
   this.dragEndX = null;
+  this.underlay = game.add.sprite(0, 0, 'cursors');
+  this.underlay.anchor.x = 0.5;
+  this.underlay.anchor.y = 0.5;
+  this.hasSelected = false;
   this.update = function(units) {
     var x = game.input.mousePointer.worldX;
     var y = game.input.mousePointer.worldY;
@@ -12,6 +16,7 @@ var Mouse = function(game, statusHeight, gameWindowHeight) {
       this.dragEndX = x;
       // Set start of drag location
       if (!this.isDragging) {
+        this.underlay.frame = 0;
         this.dragStartX = this.dragEndX;
         this.sprite.revive(1);
       }
@@ -42,7 +47,7 @@ var Mouse = function(game, statusHeight, gameWindowHeight) {
         
         // If none selected and not dragged too far,
         // interpret as command
-        if (numSelected == 0 && isClick) {
+        if (numSelected === 0 && isClick) {
           var targetX = this.dragEndX;
           var delta = 0;
           var target = null;
@@ -55,9 +60,12 @@ var Mouse = function(game, statusHeight, gameWindowHeight) {
               break;
             }
           }
+          this.hasSelected = false;
+          this.underlay.frame = 0;
           for (var i = 0; i < units.total; i++) {
             var unit = units.getAt(i);
             if (unit.unit.isSelected) {
+              this.hasSelected = true;
               if (target) {
                 unit.unit.attack(target);
               } else {
@@ -69,6 +77,8 @@ var Mouse = function(game, statusHeight, gameWindowHeight) {
             }
           }
         } else {
+          this.hasSelected = false;
+          this.underlay.frame = 0;
           var firstSelected = false;
           for (var i = 0; i < units.total; i++) {
             var unit = units.getAt(i);
@@ -79,6 +89,7 @@ var Mouse = function(game, statusHeight, gameWindowHeight) {
             unit.unit.setSelected(overlap);
             if (overlap) {
               firstSelected = true;
+              this.hasSelected = true;
             }
           }
         }
@@ -89,13 +100,23 @@ var Mouse = function(game, statusHeight, gameWindowHeight) {
     }
     
     // Hover selection
+    if (this.hasSelected) {
+      this.underlay.frame = 1;
+    }
     for (var i = 0; i < units.total; i++) {
       var unit = units.getAt(i);
       var overlap = (unit.x - unit.body.width / 2 < x &&
           unit.x + unit.body.width / 2 > x);
-      if (overlap && unit.unit.team === 'player') {
-        unit.unit.hover();
+      if (overlap) {
+        if (unit.unit.team === 'player') {
+          this.underlay.frame = 0;
+          unit.unit.hover();
+        } else {
+          this.underlay.frame = 2;
+        }
       }
     }
+    this.underlay.x = x;
+    this.underlay.y = y;
   };
 };

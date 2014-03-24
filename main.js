@@ -43,6 +43,7 @@ function preload () {
   
   game.load.image('frame', 'images/frame.png');
   game.load.image('selection', 'images/selection.png');
+  game.load.spritesheet('cursors', 'images/cursors.png', 40, 40);
   game.load.image('shade', 'images/shade.png');
   game.load.image('health', 'images/health.png');
   game.load.image('mana', 'images/mana.png');
@@ -151,7 +152,7 @@ function create () {
   x += buttons.tank.button.width + 10;
   buttons.truck = new BuildButton(game, x, y, 'truck_button', refinery, credits, tooltip);
 
-  tooltip = game.add.text(0, 0, "tooltip", style);
+  tooltip = game.add.text(0, 0, "", style);
   // Need to set these after tooltip is created
   buttons.marine.setTooltip(tooltip, 'Marine');
   buttons.tank.setTooltip(tooltip, 'Tank');
