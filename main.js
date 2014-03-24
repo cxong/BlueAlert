@@ -75,6 +75,8 @@ function preload () {
   game.load.audio('agony', 'audio/agony.mp3');
   game.load.audio('tank_fire', 'audio/tank_fire.mp3');
   game.load.audio('m16', 'audio/m16.mp3');
+  game.load.audio('ready', 'audio/ready.mp3');
+  game.load.audio('affirmative', 'audio/affirmative.mp3');
   game.load.audio('training', 'audio/training.mp3');
   game.load.audio('training_complete', 'audio/training_complete.mp3');
   game.load.audio('building', 'audio/building.mp3');

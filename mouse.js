@@ -1,6 +1,12 @@
 var Mouse = function(game, statusHeight, gameWindowHeight) {
   this.sprite = game.add.sprite(0, 0, 'selection');
   this.sprite.kill();
+  
+  var sounds = {
+    ready: game.add.audio('ready'),
+    affirmative: game.add.audio('affirmative')
+  };
+  
   this.isDragging = false;
   this.dragStartX = null;
   this.dragEndX = null;
@@ -76,6 +82,9 @@ var Mouse = function(game, statusHeight, gameWindowHeight) {
               }
             }
           }
+          if (this.hasSelected) {
+            sounds.affirmative.play();
+          }
         } else {
           this.hasSelected = false;
           this.underlay.frame = 0;
@@ -91,6 +100,9 @@ var Mouse = function(game, statusHeight, gameWindowHeight) {
               firstSelected = true;
               this.hasSelected = true;
             }
+          }
+          if (this.hasSelected) {
+            sounds.ready.play();
           }
         }
         
