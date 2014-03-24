@@ -207,6 +207,12 @@ var Unit = function(game, units, spritename,
             this.dest = this.target.sprite.x;
           } else {
             this.dest = null;
+            // Turn to face the adversary
+            if (this.target.sprite.x > this.sprite.x) {
+              this.sprite.scale.x = 1;
+            } else {
+              this.sprite.scale.x = -1;
+            }
             // firing
             if (this.attackCounter <= 0) {
               this.attackCounter = 100;
