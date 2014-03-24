@@ -1,8 +1,7 @@
 var Building = function(game, buildings,
                         spritename, diesnd,
                         buildsnd, completesnd,
-                        health, pos, team,
-                        buildFunc, cost, buildTime) {
+                        health, pos, team) {
   this.sprite = game.add.sprite(pos.x, pos.y, spritename);
   this.sprite.anchor.x = 0.5;
   this.sprite.anchor.y = 1;
@@ -27,43 +26,51 @@ var Building = function(game, buildings,
   this.healthbar = new Healthbar(game);
   
   // Buildings build units
-  this.cost = cost;
-  this.buildTime = buildTime;
-  this.buildCounter = buildTime;
-  this.isBuilding = false;
-  this.canBuild = function(credits) {
-    return this.sprite.alive && credits >= this.cost && !this.isBuilding;
+  this.units = [];
+  this.addUnit = function(buildFunc, cost, buildTime) {
+    this.units.push({
+      buildFunc: buildFunc,
+      cost: cost,
+      buildTime: buildTime,
+      buildCounter: buildTime,
+      isBuilding: false
+    });
   };
-  this.build = function() {
+  this.canBuild = function(credits, index) {
+    return this.sprite.alive && credits >= this.units[index].cost && !this.units[index].isBuilding;
+  };
+  this.build = function(index) {
     if (!this.sprite.alive) {
       return;
     }
-    if (!this.isBuilding) {
+    if (!this.units[index].isBuilding) {
       if (this.team === 'player') {
         sounds.build.play();
       }
     }
-    this.isBuilding = true;
+    this.units[index].isBuilding = true;
   };
   this.update = function(units) {
-    var unit = null;
     this.healthbar.update(this.sprite, this.sprite.health / health);
-    if (this.isBuilding) {
-      this.buildCounter--;
-      if (this.buildCounter <= 0) {
-        this.buildCounter = buildTime;
-        if (buildFunc) {
-          unit = buildFunc(this.sprite.x, this.team);
-          units.push(unit);
-          unit.moveTo(this.dest);
-          if (this.team === 'player') {
-            sounds.complete.play();
+    for (var i = 0; i < this.units.length; i++) {
+      if (this.units[i].isBuilding) {
+        this.units[i].buildCounter--;
+        if (this.units[i].buildCounter <= 0) {
+          this.units[i].buildCounter = this.units[i].buildTime;
+          if (this.units[i].buildFunc) {
+            unit = this.units[i].buildFunc(this.sprite.x, this.team);
+            units.push(unit);
+            unit.moveTo(this.dest);
+            if (this.team === 'player') {
+              sounds.complete.play();
+            }
+            this.units[i].isBuilding = false;
+            return unit;
           }
-          this.isBuilding = false;
         }
       }
     }
-    return unit;
+    return null;
   };
   
   this.kill = function() {

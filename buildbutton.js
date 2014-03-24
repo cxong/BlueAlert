@@ -1,9 +1,10 @@
-var BuildButton = function(game, x, y, sprite, building, credits, tooltip, unitname) {
+var BuildButton = function(game, x, y, sprite, building, credits, buildIndex) {
   this.building = building;
+  this.buildIndex = buildIndex;
   this.build = function() {
-    if (this.building.canBuild(credits.credits)) {
-      this.building.build();
-      credits.addCredits(-this.building.cost);
+    if (this.building.canBuild(credits.credits, this.buildIndex)) {
+      this.building.build(this.buildIndex);
+      credits.addCredits(-this.building.units[this.buildIndex].cost);
     }
   };
   this.button = game.add.button(0, 0, sprite, this.build, this);
@@ -16,7 +17,7 @@ var BuildButton = function(game, x, y, sprite, building, credits, tooltip, unitn
   this.showTooltip = false;
   this.onOver = function() {
     this.showTooltip = true;
-    this.tooltip.content = this.unitname + ' $' + this.building.cost;
+    this.tooltip.content = this.unitname + ' $' + this.building.units[this.buildIndex].cost;
   };
   this.onOut = function() {
     this.showTooltip = false;
@@ -42,7 +43,7 @@ var BuildButton = function(game, x, y, sprite, building, credits, tooltip, unitn
       }
       this.shade.width = this.button.width;
       this.shade.height = this.button.height;
-    } else if (this.building.isBuilding) {
+    } else if (this.building.units[this.buildIndex].isBuilding) {
       // draw a shade over the button
       if (!this.shade.alive) {
         this.shade.revive(1);
@@ -50,7 +51,7 @@ var BuildButton = function(game, x, y, sprite, building, credits, tooltip, unitn
         this.shade.cameraOffset.y = this.button.cameraOffset.y;
         this.shade.width = this.button.width;
       }
-      this.shade.height = (this.building.buildTime - this.building.buildCounter) / this.building.buildTime * this.button.height;
+      this.shade.height = (this.building.units[this.buildIndex].buildTime - this.building.units[this.buildIndex].buildCounter) / this.building.units[this.buildIndex].buildTime * this.button.height;
     } else if (this.shade.alive) {
       this.shade.kill();
     }

@@ -39,6 +39,7 @@ function preload () {
   game.load.image('scroll_back', 'images/scroll_back.jpg');
   game.load.image('scroll', 'images/scroll.png');
   game.load.image('marine_button', 'images/marine_button.jpg');
+  game.load.image('jeep_button', 'images/jeep_button.jpg');
   game.load.image('tank_button', 'images/tank_button.jpg');
   game.load.image('truck_button', 'images/truck_button.jpg');
   
@@ -61,6 +62,8 @@ function preload () {
   game.load.image('tank_enemy', 'images/tank_enemy.png');
   game.load.image('marine', 'images/marine.png');
   game.load.image('marine_enemy', 'images/marine_enemy.png');
+  game.load.image('jeep', 'images/jeep.png');
+  game.load.image('jeep_enemy', 'images/jeep_enemy.png');
   game.load.image('truck', 'images/truck.png');
   game.load.image('truck_enemy', 'images/truck_enemy.png');
   game.load.image('war_fac', 'images/war_fac.png');
@@ -74,6 +77,7 @@ function preload () {
   game.load.audio('explode', 'audio/explode.mp3');
   game.load.audio('agony', 'audio/agony.mp3');
   game.load.audio('tank_fire', 'audio/tank_fire.mp3');
+  game.load.audio('browning', 'audio/browning.mp3');
   game.load.audio('m16', 'audio/m16.mp3');
   game.load.audio('ready', 'audio/ready.mp3');
   game.load.audio('affirmative', 'audio/affirmative.mp3');
@@ -123,13 +127,13 @@ function create () {
   // Add buildings
   var barracks = NewBarracks(250, 'player', NewMarine);
   buildings.push(barracks);
-  var factory = NewFactory(750, 'player', NewTank);
+  var factory = NewFactory(750, 'player', [NewJeep, NewTank]);
   buildings.push(factory);
   var refinery = NewRefinery(1250, 'player', NewTruck);
   buildings.push(refinery);
   
   buildings.push(NewBarracks(game.world.bounds.width - 250, 'cpu', NewMarineEnemy));
-  buildings.push(NewFactory(game.world.bounds.width - 750, 'cpu', NewTankEnemy));
+  buildings.push(NewFactory(game.world.bounds.width - 750, 'cpu', [NewJeep, NewTankEnemy]));
   buildings.push(NewRefinery(game.world.bounds.width - 1250, 'cpu', NewTruck));
   
   // Add ore patches
@@ -152,15 +156,18 @@ function create () {
   var style = { font: "18px Arial", fill: "#dddd33" };
   var x = 10;
   var y = groundY + scrollbar.sprite.height + 10;
-  buttons.marine = new BuildButton(game, x, y, 'marine_button', barracks, credits);
+  buttons.marine = new BuildButton(game, x, y, 'marine_button', barracks, credits, 0);
   x += buttons.marine.button.width + 10;
-  buttons.tank = new BuildButton(game, x, y, 'tank_button', factory, credits, tooltip);
+  buttons.jeep = new BuildButton(game, x, y, 'jeep_button', factory, credits, 0);
+  x += buttons.jeep.button.width + 10;
+  buttons.tank = new BuildButton(game, x, y, 'tank_button', factory, credits, 1);
   x += buttons.tank.button.width + 10;
-  buttons.truck = new BuildButton(game, x, y, 'truck_button', refinery, credits, tooltip);
+  buttons.truck = new BuildButton(game, x, y, 'truck_button', refinery, credits, 0);
 
   tooltip = game.add.text(0, 0, "", style);
   // Need to set these after tooltip is created
   buttons.marine.setTooltip(tooltip, 'Marine');
+  buttons.jeep.setTooltip(tooltip, 'Jeep');
   buttons.tank.setTooltip(tooltip, 'Tank');
   buttons.truck.setTooltip(tooltip, 'Harvester truck');
   
@@ -171,28 +178,34 @@ function create () {
 
 // Building factory functions
 function NewBarracks(x, team, unitFunc) {
-  return new Building(game, groups.buildings,
+  var b = new Building(game, groups.buildings,
                       'barracks' + (team === 'player' ? '' : '_enemy'),
                       'explode',
                       'training', 'training_complete',
-                      200, {x:x, y:groundY}, team,
-                      unitFunc, 150, 100);
+                      200, {x:x, y:groundY}, team);
+  b.addUnit(unitFunc, 150, 100);
+  return b;
 }
-function NewFactory(x, team, unitFunc) {
-  return new Building(game, groups.buildings,
+function NewFactory(x, team, unitFuncs) {
+  var b = new Building(game, groups.buildings,
                       'war_fac' + (team === 'player' ? '' : '_enemy'),
                       'explode',
                       'building', 'unit_ready',
-                      300, {x:x, y:groundY}, team,
-                      unitFunc, 600, 500);
+                      300, {x:x, y:groundY}, team);
+  var costs = [450, 600];
+  var buildtimes = [320, 500];
+  for (var i = 0; i < unitFuncs.length; i++) {
+    b.addUnit(unitFuncs[i], costs[i], buildtimes[i]);
+  }
+  return b;
 }
 function NewRefinery(x, team, unitFunc) {
   var b = new Building(game, groups.buildings,
                        'refinery' + (team === 'player' ? '' : '_enemy'),
                        'explode',
                        'building', 'unit_ready',
-                       300, {x:x, y:groundY}, team,
-                       unitFunc, 1500, 1000);
+                       300, {x:x, y:groundY}, team);
+  b.addUnit(unitFunc, 1500, 1000);
   b.isRefinery = true;
   return b;
 }
@@ -201,7 +214,7 @@ function NewRefinery(x, team, unitFunc) {
 function NewTank(x, team) {
   return new Unit(game, groups.units,
                   'tank',
-                  'sabot', 1, 100, -50,
+                  'sabot', 1, 98, -48,
                   'explode',
                   3.0,
                   20.0, 'tank_fire', 1.0, 400,
@@ -212,7 +225,7 @@ function NewTank(x, team) {
 function NewTankEnemy(x, team) {
   return new Unit(game, groups.units,
                   'tank_enemy',
-                  'sabot', 1, 100, -50,
+                  'sabot', 1, 98, -48,
                   'explode',
                   2.5,
                   20.0, 'tank_fire', 1.0, 400,
@@ -226,7 +239,7 @@ function NewMarine(x, team) {
                   'bullet', 5, 20, -40,
                   'agony',
                   2.4,
-                  10.0, 'm16', 2.0, 300,
+                  10.0, 'm16', 1.9, 300,
                   50,
                   {x:x, y:groundY},
                   team);
@@ -237,8 +250,19 @@ function NewMarineEnemy(x, team) {
                   'bullet', 5, 20, -40,
                   'agony',
                   2.0,
-                  10.0, 'm16', 2.0, 300,
+                  10.0, 'm16', 1.9, 300,
                   60,
+                  {x:x, y:groundY},
+                  team);
+}
+function NewJeep(x, team) {
+  return new Unit(game, groups.units,
+                  'jeep' + (team === 'player' ? '' : '_enemy'),
+                  'bullet', 4, 80, -40,
+                  'explode',
+                  4.0,
+                  12.0, 'browning', 2.1, 350,
+                  80,
                   {x:x, y:groundY},
                   team);
 }
@@ -265,30 +289,38 @@ function update() {
     for (i = 0; i < buildings.length; i++) {
       var building = buildings[i];
       if (building.team !== 'player') {
-        // Enemy build AI: one truck per 10 units, 2x marines, 1x tank
-        var tryBuild = false;
-        var canBuild = building.canBuild(creditsEnemy);
-        if (enemyState.trucks < enemyState.army / 10 + 1) {
-          tryBuild = building.isRefinery;
-          if (tryBuild && canBuild) {
-            enemyState.trucks++;
+        // Enemy build AI: one truck per 10 units, 3x marines, 2x jeep, 1x tank
+        for (var j = 0; j < building.units.length; j++) {
+          var tryBuild = false;
+          var canBuild = building.canBuild(creditsEnemy, j);
+          if (enemyState.trucks < enemyState.army / 10 + 1) {
+            tryBuild = building.isRefinery;
+            if (tryBuild && canBuild) {
+              enemyState.trucks++;
+            }
+          } else if (enemyState.marineTankCounter <= 3) {
+            tryBuild = building.name === 'barracks_enemy';
+            if (tryBuild && canBuild) {
+              enemyState.marineTankCounter++;
+              enemyState.army++;
+            }
+          } else if (enemyState.marineTankCounter <= 5) {
+            tryBuild = building.name === 'war_fac_enemy' && j === 0;
+            if (tryBuild && canBuild) {
+              enemyState.marineTankCounter++;
+              enemyState.army++;
+            }
+          } else {
+            tryBuild = building.name === 'war_fac_enemy' && j === 1;
+            if (tryBuild && canBuild) {
+              enemyState.marineTankCounter = 0;
+              enemyState.army++;
+            }
           }
-        } else if (enemyState.marineTankCounter < 2) {
-          tryBuild = building.name === 'barracks_enemy';
-          if (tryBuild && canBuild) {
-            enemyState.marineTankCounter++;
-            enemyState.army++;
+          if (tryBuild && building.canBuild(creditsEnemy, j)) {
+            building.build(j);
+            creditsEnemy -= building.units[j].cost;
           }
-        } else {
-          tryBuild = building.name === 'war_fac_enemy';
-          if (tryBuild && canBuild) {
-            enemyState.marineTankCounter -= 2;
-            enemyState.army++;
-          }
-        }
-        if (tryBuild && building.canBuild(creditsEnemy)) {
-          building.build();
-          creditsEnemy -= building.cost;
         }
       }
     }
@@ -368,6 +400,7 @@ function update() {
     scrollbar.update();
     
     buttons.marine.update();
+    buttons.jeep.update();
     buttons.tank.update();
     buttons.truck.update();
     
