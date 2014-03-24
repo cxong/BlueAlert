@@ -220,7 +220,14 @@ var Unit = function(game, units, spritename,
               if (volume > 0) {
                 sounds.fire.play('', 0, volume);
               }
-              this.target.sprite.damage(attackstr);
+              // Halve attack str if ineffective
+              if ((this.name.indexOf('marine') === 0 && this.target.name.indexOf('jeep') === 0) ||
+                  (this.name.indexOf('jeep') === 0 && this.target.name.indexOf('tank') === 0) ||
+                  (this.name.indexOf('tank') === 0 && this.target.name.indexOf('marine') === 0)) {
+                this.target.sprite.damage(attackstr / 2);
+              } else {
+                this.target.sprite.damage(attackstr);
+              }
               this.emitter.x = this.sprite.x + muzzlex * this.sprite.scale.x;
               this.emitter.y = this.sprite.y + muzzley;
               var xspeed = 1500.0 * this.sprite.scale.x;

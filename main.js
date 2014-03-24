@@ -214,7 +214,7 @@ function NewRefinery(x, team, unitFunc) {
 function NewTank(x, team) {
   return new Unit(game, groups.units,
                   'tank',
-                  'sabot', 1, 98, -48,
+                  'sabot', 1, 110, -48,
                   'explode',
                   3.0,
                   20.0, 'tank_fire', 1.0, 400,
@@ -225,7 +225,7 @@ function NewTank(x, team) {
 function NewTankEnemy(x, team) {
   return new Unit(game, groups.units,
                   'tank_enemy',
-                  'sabot', 1, 98, -48,
+                  'sabot', 1, 110, -48,
                   'explode',
                   2.5,
                   20.0, 'tank_fire', 1.0, 400,
@@ -236,7 +236,7 @@ function NewTankEnemy(x, team) {
 function NewMarine(x, team) {
   return new Unit(game, groups.units,
                   'marine',
-                  'bullet', 5, 20, -40,
+                  'bullet', 5, 30, -40,
                   'agony',
                   2.4,
                   10.0, 'm16', 1.9, 300,
@@ -247,7 +247,7 @@ function NewMarine(x, team) {
 function NewMarineEnemy(x, team) {
   return new Unit(game, groups.units,
                   'marine_enemy',
-                  'bullet', 5, 20, -40,
+                  'bullet', 5, 30, -40,
                   'agony',
                   2.0,
                   10.0, 'm16', 1.9, 300,
@@ -258,7 +258,7 @@ function NewMarineEnemy(x, team) {
 function NewJeep(x, team) {
   return new Unit(game, groups.units,
                   'jeep' + (team === 'player' ? '' : '_enemy'),
-                  'bullet', 4, 80, -40,
+                  'bullet', 4, 80, -48,
                   'explode',
                   4.0,
                   12.0, 'browning', 2.1, 350,
