@@ -15,6 +15,7 @@ var enemyState = {
 };
 var gameState = 'play';
 var splash;
+var scrollbar;
 
 // Layout: statusbar, game window, build bars
 var statusHeight = 50;
@@ -35,6 +36,8 @@ function preload () {
   game.load.image('victory', 'images/victory.jpg');
   game.load.image('defeat', 'images/defeat.jpg');
   game.load.image('brushed', 'images/brushed.jpg');
+  game.load.image('scroll_back', 'images/scroll_back.jpg');
+  game.load.image('scroll', 'images/scroll.png');
   game.load.image('marine_button', 'images/marine_button.jpg');
   game.load.image('tank_button', 'images/tank_button.jpg');
   game.load.image('truck_button', 'images/truck_button.jpg');
@@ -143,9 +146,10 @@ function create () {
   var bottombg = game.add.sprite(0, 0, 'brushed');
   bottombg.fixedToCamera = true;
   bottombg.cameraOffset.y = groundY;
+  scrollbar = new Scrollbar(game, 0, groundY);
   var style = { font: "18px Arial", fill: "#dddd33" };
   var x = 10;
-  var y = groundY + 10;
+  var y = groundY + scrollbar.sprite.height + 10;
   buttons.marine = new BuildButton(game, x, y, 'marine_button', barracks, credits);
   x += buttons.marine.button.width + 10;
   buttons.tank = new BuildButton(game, x, y, 'tank_button', factory, credits, tooltip);
@@ -358,6 +362,8 @@ function update() {
     }
     
     credits.update();
+    
+    scrollbar.update();
     
     buttons.marine.update();
     buttons.tank.update();
