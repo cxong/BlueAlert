@@ -3,6 +3,7 @@ var Unit = function(game, units, spritename,
                     diesnd,
                     speed, attackstr, attacksnd, attackspeed, range, health, pos, team) {
   this.sprite = game.add.sprite(pos.x, pos.y, spritename);
+  game.physics.arcade.enable(this.sprite);
   this.sprite.anchor.x = 0.5;
   this.sprite.anchor.y = 1;
   this.sprite.body.width = this.sprite.width * 0.7;

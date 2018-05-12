@@ -3,6 +3,7 @@ var Building = function(game, buildings,
                         buildsnd, completesnd,
                         health, pos, team) {
   this.sprite = game.add.sprite(pos.x, pos.y, spritename);
+  game.physics.arcade.enable(this.sprite);
   this.sprite.anchor.x = 0.5;
   this.sprite.anchor.y = 1;
   buildings.add(this.sprite);

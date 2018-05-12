@@ -1,5 +1,6 @@
 var Mouse = function(game, statusHeight, gameWindowHeight) {
   this.sprite = game.add.sprite(0, 0, 'selection');
+  game.physics.arcade.enable(this.sprite);
   this.sprite.kill();
   
   var sounds = {

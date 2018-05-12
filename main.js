@@ -1,5 +1,4 @@
 var windowSize = { x: 1152, y: 480 };
-var game = new Phaser.Game(windowSize.x, windowSize.y, Phaser.AUTO, '', { preload: preload, create: create, update: update });
 var mouse;
 var bg;
 var units = [];
@@ -416,3 +415,33 @@ function update() {
   } else if (gameState === 'end') {
   }
 }
+
+var Boot = function (game) {
+};
+
+Boot.prototype = {
+    create: function () {
+        this.game.stage.backgroundColor = 0x00FFF6;
+        this.input.maxPointers = 1;
+        this.game.scale.scaleMode = Phaser.ScaleManager.SHOW_ALL;
+        this.game.physics.startSystem(Phaser.Physics.ARCADE);
+
+        this.state.start('game');
+    }
+};
+
+var GameState = function(game){};
+
+GameState.prototype.preload = preload;
+GameState.prototype.create = create;
+GameState.prototype.update = update;
+
+var game;
+window.onload = function() { setTimeout(function () {
+  game = new Phaser.Game(
+    windowSize.x, windowSize.y, Phaser.AUTO, 'gameContainer', null, false, false
+  );
+  game.state.add('boot', Boot);
+  game.state.add('game', GameState);
+  game.state.start('boot');
+}, 1000); };
