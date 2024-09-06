@@ -11,10 +11,10 @@ var Scrollbar = function(game, x, y) {
   this.update = function() {
     // update camera position based on mouse click in scroll bar
     var isClick = game.input.mousePointer.isDown &&
-      game.input.mousePointer.clientX >= x && game.input.mousePointer.clientX < x + this.backsprite.width &&
-      game.input.mousePointer.clientY >= y && game.input.mousePointer.clientY < y + this.backsprite.height;
+      game.input.mousePointer.x >= x && game.input.mousePointer.x < x + this.backsprite.width &&
+      game.input.mousePointer.y >= y && game.input.mousePointer.y < y + this.backsprite.height;
     if (isClick) {
-      var clickPct = (game.input.mousePointer.clientX - this.sprite.width / 2) / (this.backsprite.width - this.sprite.width);
+      var clickPct = (game.input.mousePointer.x - this.sprite.width / 2) / (this.backsprite.width - this.sprite.width);
       if (clickPct < 0) {
         clickPct = 0;
       } else if (clickPct > 1) {
